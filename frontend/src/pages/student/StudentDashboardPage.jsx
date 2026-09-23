@@ -7,6 +7,7 @@ import { StatusBadge } from '../../components/ui/Badge.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { Panel, PanelBody, PanelHeader } from '../../components/ui/Panel.jsx';
+import { Metric } from '../../components/dashboard/Metric.jsx';
 import {
   AsyncSection,
   EmptyState,
@@ -33,6 +34,14 @@ import {
   isPastDate,
   orPlaceholder,
 } from '../../utils/format.js';
+
+/** "Good morning" until noon, "Good afternoon" until 18:00, then "Good evening". */
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
 
 /**
  * Operational dashboard: what the student has coming up, what they are waiting
@@ -108,8 +117,18 @@ export function StudentDashboardPage() {
   return (
     <>
       <PageHeader
-        title={`Hello, ${firstName}`}
-        description="Your clubs, registrations and anything waiting on you."
+        title={`${greeting()}, ${firstName}`}
+        description="Here's what's happening on campus."
+        actions={
+          <p className="page-head__date">
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            })}
+          </p>
+        }
       />
 
       <div className="metric-row">
@@ -349,24 +368,5 @@ export function StudentDashboardPage() {
         </div>
       </div>
     </>
-  );
-}
-
-function Metric({ value, label, loading, unavailable }) {
-  return (
-    <div className="metric">
-      <p className="metric__value">
-        {loading ? (
-          <span className="skeleton" style={{ display: 'block', width: 38, height: 26 }} />
-        ) : unavailable ? (
-          <span className="text-muted" style={{ fontSize: 'var(--fs-18)' }}>
-            —
-          </span>
-        ) : (
-          value
-        )}
-      </p>
-      <p className="metric__label">{label}</p>
-    </div>
   );
 }

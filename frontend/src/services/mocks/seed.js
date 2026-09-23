@@ -1,4 +1,5 @@
 import {
+  ATTENDANCE_STATUS,
   EVENT_STATUS,
   MEMBERSHIP_STATUS,
   REGISTRATION_STATUS,
@@ -563,13 +564,32 @@ export function buildSeed() {
     },
   ];
 
+  // Attendance is recorded per (event, student) by the organising club.
+  const attendance = [
+    {
+      id: 1,
+      event_id: 6,
+      student_id: 1,
+      status: ATTENDANCE_STATUS.PRESENT,
+      marked_at: isoTimestamp(-38),
+    },
+    {
+      id: 2,
+      event_id: 6,
+      student_id: 5,
+      status: ATTENDANCE_STATUS.ABSENT,
+      marked_at: isoTimestamp(-38),
+    },
+  ];
+
   return {
-    version: 1,
+    version: 2,
     users,
     clubs,
     memberships,
     events,
     registrations,
+    attendance,
     notifications,
     // Passwords for accounts created during a demo session, keyed by user id.
     // Seeded accounts all use DEMO_PASSWORD.

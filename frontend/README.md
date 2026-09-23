@@ -61,13 +61,19 @@ src/
 │   ├── navigation/   Sidebar, AccountMenu, navConfig
 │   ├── routing/      Route guards
 │   ├── clubs/        ClubCard, ClubSummary
-│   └── events/       EventRecord, DateChip
+│   ├── dashboard/    Metric
+│   └── events/       EventRecord, DateChip, EventForm
 ├── pages/
 │   ├── auth/         Login, Register
-│   ├── student/      Dashboard, clubs, events, registrations
-│   └── shared/       Notifications, Profile, 404, pending-workspace
+│   ├── student/      Dashboard, clubs, events, registrations,
+│   │                 recommendations, participation
+│   ├── clubadmin/    Dashboard, clubs, members, events, registrations+attendance
+│   ├── faculty/      Dashboard, pending queue, approve/reject
+│   ├── admin/        Dashboard, approved events, statistics, accounts
+│   └── shared/       Notifications, Profile, 404, workspace fallback
 ├── services/
-│   ├── api/          Live HTTP calls — one module per backend router
+│   ├── api/          Live HTTP calls — one module per backend router,
+│   │                 plus contract.test.js asserting method/path/body
 │   ├── mocks/        Demo dataset and the operations over it
 │   ├── dataSource.js Live/demo switch + service factory
 │   ├── errors.js     ApiError / NotImplementedError

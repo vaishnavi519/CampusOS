@@ -1,4 +1,5 @@
 import {
+  ATTENDANCE_STATUS,
   EVENT_STATUS,
   MEMBERSHIP_STATUS,
   REGISTRATION_STATUS,
@@ -84,6 +85,21 @@ const REGISTRATION_DESCRIPTORS = {
   },
 };
 
+const ATTENDANCE_DESCRIPTORS = {
+  [ATTENDANCE_STATUS.PRESENT]: {
+    label: 'Present',
+    tone: 'success',
+    glyph: 'check',
+    hint: 'Marked present by the organising club.',
+  },
+  [ATTENDANCE_STATUS.ABSENT]: {
+    label: 'Absent',
+    tone: 'danger',
+    glyph: 'cross',
+    hint: 'Marked absent by the organising club.',
+  },
+};
+
 const FALLBACK = { label: 'Unknown', tone: 'neutral', glyph: 'dot', hint: '' };
 
 function lookup(table, status) {
@@ -104,8 +120,13 @@ export const membershipStatus = (status) =>
 export const registrationStatus = (status) =>
   lookup(REGISTRATION_DESCRIPTORS, status);
 
+/** Not-yet-marked attendance is a real state, not an error — it renders blank. */
+export const attendanceStatus = (status) =>
+  status ? lookup(ATTENDANCE_DESCRIPTORS, status) : { ...FALLBACK, label: 'Not marked' };
+
 export const STATUS_KINDS = {
   event: eventStatus,
   membership: membershipStatus,
   registration: registrationStatus,
+  attendance: attendanceStatus,
 };

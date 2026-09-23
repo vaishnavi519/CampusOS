@@ -3,8 +3,9 @@ import { useParams } from 'react-router-dom';
 
 import { EventRecord } from '../../components/events/EventRecord.jsx';
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
-import { StatusBadge, Tag } from '../../components/ui/Badge.jsx';
+import { StatusBadge } from '../../components/ui/Badge.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { DetailHero } from '../../components/ui/DetailHero.jsx';
 import {
   DetailList,
   Panel,
@@ -23,7 +24,7 @@ import { useAsync } from '../../hooks/index.js';
 import { clubService, eventService } from '../../services/index.js';
 import { NotImplementedError } from '../../services/errors.js';
 import { MEMBERSHIP_STATUS, ROLES } from '../../utils/constants.js';
-import { formatDate, orPlaceholder } from '../../utils/format.js';
+import { formatDate, initials, orPlaceholder } from '../../utils/format.js';
 import { membershipStatus as describeMembership } from '../../utils/status.js';
 
 export function ClubDetailsPage() {
@@ -103,22 +104,37 @@ export function ClubDetailsPage() {
     <>
       <PageHeader
         title={record.name}
-        parent={{ label: 'Browse clubs', to: '/app/clubs' }}
-        actions={
+        parent={{ label: 'Back to clubs', to: '/app/clubs' }}
+        titleHidden
+      />
+
+      <DetailHero
+        name={record.name}
+        lead={
+          <span className="club-monogram" aria-hidden="true">
+            {initials(record.name)}
+          </span>
+        }
+        meta={
+          <>
+            {record.category ? <span>{record.category}</span> : null}
+            {record.created_at ? (
+              <span className="record__meta-sep">
+                Registered {formatDate(record.created_at)}
+              </span>
+            ) : null}
+          </>
+        }
+        action={
           canJoin ? (
-            <Button variant="primary" loading={joining} onClick={handleJoin}>
-              Join club
+            <Button variant="secondary" loading={joining} onClick={handleJoin}>
+              Request to join
             </Button>
+          ) : membership ? (
+            <StatusBadge kind="membership" status={membership.status} />
           ) : null
         }
-      >
-        <div className="row-wrap" style={{ marginTop: 8 }}>
-          {record.category ? <Tag>{record.category}</Tag> : null}
-          {membership ? (
-            <StatusBadge kind="membership" status={membership.status} />
-          ) : null}
-        </div>
-      </PageHeader>
+      />
 
       {membership ? (
         <Alert

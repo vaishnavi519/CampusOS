@@ -5,6 +5,7 @@ const {
     submitEventForApproval,
     getPendingEvents,
     approveEvent,
+    rejectEvent,
     publishEvent
 } = require("../controllers/eventController");
 
@@ -40,6 +41,13 @@ router.patch(
 );
 
 router.patch(
+    "/:id/reject",
+    protect,
+    authorize("FACULTY_COORDINATOR"),
+    rejectEvent
+);
+
+router.patch(
     "/:id/publish",
     protect,
     authorize("SYSTEM_ADMIN"),
@@ -51,13 +59,6 @@ router.patch(
     protect,
     authorize("CLUB_ADMIN"),
     submitEventForApproval
-);
-
-router.patch(
-    "/:id/publish",
-    protect,
-    authorize("FACULTY_COORDINATOR"),
-    publishEvent
 );
 
 module.exports = router;

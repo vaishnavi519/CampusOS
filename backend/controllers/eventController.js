@@ -277,6 +277,65 @@ const approveEvent = async (req, res) => {
     }
 };
 
+// Reject an event
+const rejectEvent = async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const { rejection_reason } = req.body;
+
+        if (!rejection_reason) {
+            return res.status(400).json({
+                success: false,
+                message: "Rejection reason is required"
+            });
+        }
+
+        const [events] = await db.query(
+            `SELECT id, title, status
+             FROM events
+             WHERE id = ?`,
+            [eventId]
+        );
+
+        if (events.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Event not found"
+            });
+        }
+
+        if (events[0].status !== "PENDING_APPROVAL") {
+            return res.status(400).json({
+                success: false,
+                message: "Only pending events can be rejected"
+            });
+        }
+
+        await db.query(
+            `UPDATE events
+             SET status = 'REJECTED',
+                 rejection_reason = ?,
+                 approved_by = NULL,
+                 approved_at = NULL
+             WHERE id = ?`,
+            [rejection_reason, eventId]
+        );
+
+        res.json({
+            success: true,
+            message: "Event rejected successfully"
+        });
+
+    } catch (error) {
+        console.error("Reject event error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Server error while rejecting event"
+        });
+    }
+};
+
 const publishEvent = async (req, res) => {
     try {
         const eventId = req.params.id;
@@ -330,5 +389,6 @@ module.exports = {
     submitEventForApproval,
     getPendingEvents,
     approveEvent,
+    rejectEvent,
     publishEvent
 };

@@ -168,11 +168,11 @@ const getProfile = async (req, res) => {
         });
 
     } catch (error) {
-    console.error("REGISTRATION ERROR:", error);
+    console.error("GET PROFILE ERROR:", error);
 
     res.status(500).json({
         success: false,
-        message: "Server error during registration",
+        message: "Server error while fetching profile",
         error: error.message
     });
 }

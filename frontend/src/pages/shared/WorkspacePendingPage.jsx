@@ -1,78 +1,68 @@
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
-import { Icon } from '../../components/ui/Icon.jsx';
 import { Panel, PanelBody, PanelHeader } from '../../components/ui/Panel.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { ROLES, ROLE_LABELS } from '../../utils/constants.js';
+import { ROLE_HOME, ROLE_LABELS } from '../../utils/constants.js';
 
 /**
- * Landing page for roles whose workspace has not been built yet.
+ * Fallback for a signed-in user whose role has no workspace of its own.
  *
- * It says plainly what is coming rather than showing disabled controls, and
- * still gives access to the screens that do work for every signed-in user.
+ * Every role CampusOS defines now has one (see ROLE_HOME), so this is reached
+ * only if the backend returns a role the frontend does not know about. It says
+ * so plainly and still offers the screens that work for any signed-in user,
+ * rather than dropping someone into a workspace meant for a different role.
  */
-const PLANNED = {
-  [ROLES.CLUB_ADMIN]: [
-    'Your clubs and their membership requests',
-    'Create and edit events',
-    'Submit an event for faculty approval',
-    'See who registered for each event',
-  ],
-  [ROLES.FACULTY_COORDINATOR]: [
-    'Events waiting for your approval',
-    'Full event details before you decide',
-    'Approve or return an event to the club',
-  ],
-  [ROLES.SYSTEM_ADMIN]: [
-    'Events approved by faculty and ready to publish',
-    'Publish an event to the campus calendar',
-  ],
-};
-
 export function WorkspacePendingPage() {
   const { user, role } = useAuth();
-  const planned = PLANNED[role] ?? [];
+  const home = ROLE_HOME[role];
 
   return (
     <>
       <PageHeader
         title={`${ROLE_LABELS[role] ?? 'Your'} workspace`}
-        description={`Signed in as ${user?.email}. This workspace is still being built.`}
+        description={`Signed in as ${user?.email ?? 'your account'}.`}
       />
 
       <div className="stack">
-        <Panel>
-          <PanelHeader title="Coming to this workspace" />
-          <PanelBody>
-            <ul className="stack" style={{ gap: 'var(--sp-2)' }}>
-              {planned.map((item) => (
-                <li
-                  key={item}
-                  className="row"
-                  style={{ alignItems: 'flex-start', gap: 'var(--sp-2)' }}
-                >
-                  <Icon
-                    name="dot"
-                    size={7}
-                    className="text-muted"
-                    style={{ marginTop: 9 }}
-                  />
-                  <span style={{ fontSize: 'var(--fs-14)' }}>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </PanelBody>
-        </Panel>
+        {home ? (
+          <Panel>
+            <PanelHeader title="Your workspace has moved" />
+            <PanelBody className="stack">
+              <p style={{ fontSize: 'var(--fs-14)', maxWidth: '66ch' }}>
+                Everything for your role now lives on its own dashboard.
+              </p>
+              <div>
+                <Button variant="primary" to={home}>
+                  Go to my dashboard
+                </Button>
+              </div>
+            </PanelBody>
+          </Panel>
+        ) : (
+          <Panel>
+            <PanelHeader title="No workspace for this role" />
+            <PanelBody>
+              <p
+                className="text-secondary"
+                style={{ fontSize: 'var(--fs-14)', maxWidth: '66ch' }}
+              >
+                Your account has the role{' '}
+                <strong>{role ?? 'unknown'}</strong>, which this version of
+                CampusOS does not have a workspace for. The shared screens below
+                still work.
+              </p>
+            </PanelBody>
+          </Panel>
+        )}
 
         <Panel>
-          <PanelHeader title="Available to you now" />
+          <PanelHeader title="Shared campus access" />
           <PanelBody className="stack">
             <p
               className="text-secondary"
               style={{ fontSize: 'var(--fs-14)', maxWidth: '66ch' }}
             >
-              Club and event listings are public, so you can browse them with
-              your account today.
+              Club and event listings are open to every signed-in account.
             </p>
             <div className="row-wrap">
               <Button to="/app/clubs" icon="clubs">
@@ -83,6 +73,9 @@ export function WorkspacePendingPage() {
               </Button>
               <Button to="/app/notifications" icon="bell">
                 Notifications
+              </Button>
+              <Button to="/app/profile" icon="user">
+                Profile
               </Button>
             </div>
           </PanelBody>

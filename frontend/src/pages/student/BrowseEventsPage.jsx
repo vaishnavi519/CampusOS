@@ -10,7 +10,12 @@ import {
   EmptyState,
   ListSkeleton,
 } from '../../components/ui/States.jsx';
-import { FilterSelect, SearchInput, Tabs } from '../../components/ui/Toolbar.jsx';
+import {
+  FilterSelect,
+  PillFilter,
+  SearchInput,
+  Tabs,
+} from '../../components/ui/Toolbar.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAsync, useDebouncedValue } from '../../hooks/index.js';
 import { eventService, registrationService } from '../../services/index.js';
@@ -63,7 +68,7 @@ export function BrowseEventsPage() {
       if (event.club_id) found.set(String(event.club_id), event.club_name);
     }
     return [
-      { value: 'all', label: 'All clubs' },
+      { value: 'all', label: 'All' },
       ...[...found.entries()]
         .sort((a, b) => a[1].localeCompare(b[1]))
         .map(([value, label]) => ({ value, label })),
@@ -113,8 +118,8 @@ export function BrowseEventsPage() {
   return (
     <>
       <PageHeader
-        title="Browse events"
-        description="Events published by the registrar. Only published events are open for registration."
+        title="Explore events"
+        description="Workshops, competitions, seminars and more."
       />
 
       <div style={{ marginBottom: 'var(--sp-4)' }}>
@@ -130,15 +135,9 @@ export function BrowseEventsPage() {
         <SearchInput
           className="toolbar__search"
           label="Search events"
-          placeholder="Search by title, venue or club"
+          placeholder="Search events…"
           value={query}
           onChange={setQuery}
-        />
-        <FilterSelect
-          label="Filter by club"
-          value={club}
-          onChange={setClub}
-          options={clubOptions}
         />
         <FilterSelect
           label="Sort events"
@@ -152,6 +151,15 @@ export function BrowseEventsPage() {
             {pluralize(visible.length, 'event')}
           </p>
         ) : null}
+      </div>
+
+      <div className="toolbar toolbar--pills">
+        <PillFilter
+          label="Filter by club"
+          value={club}
+          onChange={setClub}
+          options={clubOptions}
+        />
       </div>
 
       <Panel flush>

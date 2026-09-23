@@ -12,7 +12,8 @@
   width: var(--sidebar-w);
   display: flex;
   flex-direction: column;
-  background: var(--c-surface);
+  background: rgba(250, 250, 248, 0.86);
+  backdrop-filter: blur(18px) saturate(130%);
   border-right: 1px solid var(--c-border);
 }
 
@@ -29,7 +30,7 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--sp-6) var(--sp-6) var(--sp-16);
+  padding: var(--sp-8) var(--sp-8) var(--sp-16);
 }
 
 /* Brand ------------------------------------------------------------------ */
@@ -77,13 +78,13 @@
   align-items: center;
   height: var(--topbar-h);
   padding: 0 var(--sp-4);
-  border-bottom: 1px solid var(--c-border);
+  border-bottom: 0;
 }
 
 .sidebar__nav {
   flex: 1;
   overflow-y: auto;
-  padding: var(--sp-4) var(--sp-3);
+  padding: var(--sp-5) var(--sp-3);
 }
 
 .sidebar__section + .sidebar__section {
@@ -104,7 +105,7 @@
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  padding: 7px var(--sp-3);
+  padding: 8px var(--sp-3);
   border-radius: var(--r-md);
   color: var(--c-text-secondary);
   font-size: var(--fs-14);
@@ -132,7 +133,7 @@
 }
 
 .nav-link.is-active {
-  background: var(--c-surface-sunken);
+  background: var(--c-accent-soft);
   color: var(--c-text);
   font-weight: 500;
 }
@@ -147,9 +148,9 @@
   left: calc(var(--sp-3) * -1 + 1px);
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 18px;
-  border-radius: 0 2px 2px 0;
+  width: 2px;
+  height: 16px;
+  border-radius: var(--r-pill);
   background: var(--c-accent);
 }
 
@@ -159,7 +160,7 @@
 
 .sidebar__foot {
   padding: var(--sp-3);
-  border-top: 1px solid var(--c-border);
+  border-top: 0;
 }
 
 /* Account button (sidebar footer + mobile menu) -------------------------- */
@@ -210,8 +211,8 @@
   gap: var(--sp-3);
   height: var(--topbar-h);
   padding: 0 var(--sp-6);
-  background: rgba(246, 245, 242, 0.92);
-  backdrop-filter: saturate(150%) blur(6px);
+  background: rgba(247, 247, 245, 0.78);
+  backdrop-filter: saturate(150%) blur(18px);
   border-bottom: 1px solid var(--c-border);
 }
 
@@ -339,8 +340,9 @@
 }
 
 .page-head__title {
-  font-size: var(--fs-22);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .page-head__desc {
@@ -418,21 +420,27 @@
 
 .auth {
   display: grid;
-  grid-template-columns: 1fr minmax(420px, 480px);
+  grid-template-columns: minmax(420px, 0.92fr) minmax(0, 1.08fr);
   min-height: 100vh;
   min-height: 100dvh;
 }
 
 .auth__aside {
+  grid-column: 2;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--sp-8);
-  background: var(--c-ink);
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-10);
+  background: linear-gradient(180deg, rgba(20, 24, 22, 0.08), rgba(20, 24, 22, 0.72)),
+    url('https://images.unsplash.com/photo-1564981797816-1043664bf78d?auto=format&fit=crop&w=1600&q=85') center / cover;
   color: var(--c-text-inverse);
 }
 
 .auth__aside-body {
+  position: relative;
+  z-index: 1;
   max-width: 34rem;
   margin: auto 0;
 }
@@ -487,21 +495,25 @@
 }
 
 .auth__foot {
+  position: relative;
+  z-index: 1;
   font-size: var(--fs-12);
   color: rgba(250, 249, 247, 0.5);
 }
 
 .auth__panel {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  background: var(--c-surface);
+  background: rgba(250, 250, 248, 0.94);
   border-left: 1px solid var(--c-border);
   overflow-y: auto;
 }
 
 .auth__panel-inner {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   margin: auto;
   padding: var(--sp-10) var(--sp-6);
 }
@@ -534,6 +546,7 @@
     display: none;
   }
   .auth__panel {
+    grid-column: 1;
     border-left: 0;
   }
   .auth__panel-inner {
@@ -593,6 +606,12 @@
 .metric__label {
   margin-top: 2px;
   font-size: var(--fs-13);
+  color: var(--c-text-muted);
+}
+
+.metric__hint {
+  margin-top: 4px;
+  font-size: var(--fs-12);
   color: var(--c-text-muted);
 }
 
@@ -894,6 +913,7 @@ a.record:hover .record__title {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  background: var(--c-page);
   flex-direction: column;
 }
 
@@ -903,18 +923,38 @@ a.record:hover .record__title {
   gap: var(--sp-3);
   height: var(--topbar-h);
   padding: 0 var(--sp-6);
+  background: rgba(250, 250, 248, 0.8);
+  backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--c-border);
 }
 
 .landing__main {
   flex: 1;
   width: 100%;
-  max-width: var(--content-max);
+  position: relative;
+  max-width: 1240px;
+  min-height: calc(100vh - var(--topbar-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   margin: 0 auto;
-  padding: var(--sp-16) var(--sp-6);
+  padding: var(--sp-12) var(--sp-8);
+}
+
+.landing__main::after {
+  content: '';
+  position: absolute;
+  inset: 8% 0 7% 47%;
+  z-index: 0;
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(247, 247, 245, 0.98) 0%, rgba(247, 247, 245, 0.16) 42%, rgba(247, 247, 245, 0) 100%),
+    url('https://images.unsplash.com/photo-1564981797816-1043664bf78d?auto=format&fit=crop&w=1400&q=85') center / cover;
+  opacity: 0.92;
 }
 
 .landing__hero {
+  position: relative;
+  z-index: 1;
   max-width: 44rem;
 }
 
@@ -929,10 +969,13 @@ a.record:hover .record__title {
 .landing__title {
   margin-top: var(--sp-3);
   font-family: var(--font-serif);
-  font-size: clamp(2rem, 5vw, 3rem);
+  max-width: 12ch;
+  font-family: var(--font-sans);
+  font-size: clamp(2.6rem, 6vw, 4.8rem);
+  font-weight: 600;
   font-weight: 500;
   line-height: 1.15;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.045em;
 }
 
 .landing__lede {
@@ -940,7 +983,7 @@ a.record:hover .record__title {
   font-size: var(--fs-16);
   line-height: 1.7;
   color: var(--c-text-secondary);
-  max-width: 60ch;
+  max-width: 44ch;
 }
 
 .landing__actions {
@@ -951,10 +994,12 @@ a.record:hover .record__title {
 }
 
 .landing__roles {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 0;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
   border-top: 1px solid var(--c-border);
 }
 

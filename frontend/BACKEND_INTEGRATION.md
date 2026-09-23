@@ -1,17 +1,70 @@
 # Backend integration notes
 
-For the backend developer. Two parts: what the frontend already consumes, and
-what it needs next.
+For the backend developer. Three parts: what the frontend already consumes,
+what it still needs, and where the supplied API documentation and the Express
+code in this repository disagree.
 
 Nothing in here has been invented in code — every "needed" endpoint below is
-currently a `NotImplementedError` in live mode, and the screen that needs it says
-so on the page rather than showing fake data.
+currently a `NotImplementedError` in live mode, and the screen that needs it
+says so on the page rather than showing fake data.
+
+Last reconciled against the CampusOS API documentation dated 24 Sep 2026.
+
+---
+
+## 0. ⚠️ The documentation and this repository do not match
+
+The API documentation describes endpoints that **do not exist in `backend/` on
+this branch**. `backend/routes/` contains only `auth`, `clubs`, `events` and
+`test`.
+
+Documented but absent from the code here:
+
+| Method | Endpoint | Role |
+| --- | --- | --- |
+| PATCH | `/api/events/:id/reject` | FACULTY_COORDINATOR |
+| POST | `/api/events/:id/register` | STUDENT |
+| GET | `/api/my-registrations` | STUDENT |
+| PATCH | `/api/registrations/:registrationId/cancel` | STUDENT |
+| GET | `/api/events/:id/registrations` | CLUB_ADMIN |
+| POST | `/api/events/:id/attendance` | CLUB_ADMIN |
+| GET | `/api/events/:id/attendance` | CLUB_ADMIN |
+| GET | `/api/notifications` | any |
+| PATCH | `/api/notifications/:id/read` | any |
+| GET | `/api/reports/my-participation` | STUDENT |
+| GET | `/api/recommendations` | STUDENT |
+| GET | `/api/stats/platform` | SYSTEM_ADMIN |
+
+`origin/backend` has commits beyond the one merged here, so these very likely
+exist upstream and simply have not been merged into this branch. **The frontend
+has been written against the documented contract**, on the basis that the
+documentation is the current contract. If any path, body or response shape
+differs from what actually ships, the change belongs in `src/services/api/` and
+nowhere else — see §4.
+
+`src/services/api/contract.test.js` asserts the method, path and body the
+frontend sends for every endpoint above. Run `npm test` to check the frontend
+against the contract without needing a running backend.
+
+### Two direct conflicts
+
+1. **`POST /api/clubs` body.** The documentation gives `{ name, description }`.
+   `clubController.createClub` returns **400** unless `name`, `category` *and*
+   `faculty_coordinator_id` are all present. The documented request would fail
+   against this code. The frontend sends `name`, `description`, `category`, and
+   `faculty_coordinator_id` when one can be chosen — so it works either way —
+   but there is no endpoint that lists faculty coordinators to choose from
+   (§3.3). Please confirm which body is correct.
+
+2. **The documentation is a highlight list, not a full contract.** It omits
+   `GET /api/clubs/:id`, `GET /api/clubs/my-clubs`, `POST /api/clubs/:id/join`
+   and `GET /api/clubs/:id/members`, all of which exist in the code and are
+   already used by the student screens. Absence from the document has therefore
+   not been treated as proof an endpoint is missing.
 
 ---
 
 ## 1. Endpoints already integrated
-
-Read from the controllers, not assumed.
 
 | Method | Endpoint | Role | Used by |
 | --- | --- | --- | --- |
@@ -22,26 +75,51 @@ Read from the controllers, not assumed.
 | GET | `/api/clubs/:id` | public | Club details |
 | POST | `/api/clubs/:id/join` | STUDENT | Join club |
 | GET | `/api/clubs/my-clubs` | STUDENT | My clubs |
-| GET | `/api/clubs/:id/members` | CLUB_ADMIN | (club admin screens, next phase) |
-| POST | `/api/clubs` | CLUB_ADMIN | (club admin screens, next phase) |
+| GET | `/api/clubs/:id/members` | CLUB_ADMIN | Club members / join requests |
+| POST | `/api/clubs` | CLUB_ADMIN | Create club |
 | GET | `/api/events` | public | Browse events, event details |
-| POST | `/api/events` | CLUB_ADMIN | (club admin screens, next phase) |
-| PATCH | `/api/events/:id/submit` | CLUB_ADMIN | (club admin screens, next phase) |
-| GET | `/api/events/pending` | FACULTY_COORDINATOR | (faculty screens, next phase) |
-| PATCH | `/api/events/:id/approve` | FACULTY_COORDINATOR | (faculty screens, next phase) |
-| PATCH | `/api/events/:id/publish` | SYSTEM_ADMIN | (registrar screens, next phase) |
+| POST | `/api/events` | CLUB_ADMIN | Create event |
+| PATCH | `/api/events/:id/submit` | CLUB_ADMIN | Submit for approval |
+| GET | `/api/events/pending` | FACULTY_COORDINATOR | Approval queue |
+| PATCH | `/api/events/:id/approve` | FACULTY_COORDINATOR | Approve event |
+| PATCH | `/api/events/:id/reject` | FACULTY_COORDINATOR | Reject with reason |
+| PATCH | `/api/events/:id/publish` | SYSTEM_ADMIN | Publish event |
+| POST | `/api/events/:id/register` | STUDENT | Register for event |
+| GET | `/api/my-registrations` | STUDENT | My registrations, dashboard |
+| PATCH | `/api/registrations/:registrationId/cancel` | STUDENT | Cancel registration |
+| GET | `/api/events/:id/registrations` | CLUB_ADMIN | Attendee list |
+| POST | `/api/events/:id/attendance` | CLUB_ADMIN | Mark attendance |
+| GET | `/api/events/:id/attendance` | CLUB_ADMIN | Read attendance back |
+| GET | `/api/notifications` | any | Notifications, unread badge |
+| PATCH | `/api/notifications/:id/read` | any | Mark read |
+| GET | `/api/reports/my-participation` | STUDENT | My participation |
+| GET | `/api/recommendations` | STUDENT | Recommended events |
+| GET | `/api/stats/platform` | SYSTEM_ADMIN | Platform statistics |
 
-### Frontend assumptions about these
+### Assumptions the frontend makes about these
 
-- Responses are `{ success, ...payload }`; the client unwraps the payload.
-- `events.event_date` arrives as a UTC-midnight ISO string and `event_time` as
-  `"HH:MM:SS"`. The frontend parses the date from its Y-M-D parts so the local
-  timezone cannot shift an event a day backwards.
-- `GET /api/events` returns **published events only** and includes `club_name`.
-- `POST /api/auth/login` returns `{ token, user }`; the JWT payload is
-  `{ id, role }` with a 1-day expiry.
-- `POST /api/auth/register` returns the user but **no token**, so the frontend
-  follows it with a real login call.
+- **Envelopes are unwrapped in the service layer.** Screens see plain objects,
+  never `{ success, ... }`.
+- **`GET /api/my-registrations` rows are thin.** The documented row is
+  `{ id, event_id, status }`. The registration screens need a title, date,
+  venue and club name, so those are filled from `GET /api/events` when the
+  registration row does not carry them. A field that resolves to neither stays
+  `null` and renders as "Not specified" — it is never invented. If the endpoint
+  already JOINs `events`, those values win and no second request is wasted.
+- **`is_read` is normalised to a boolean `read`.** MySQL sends 0/1. Both
+  `body` and `message` are accepted as the notification's long text.
+- **There is no bulk mark-read.** "Mark all as read" issues one
+  `PATCH /notifications/:id/read` per unread row.
+- **There is no unread-count endpoint.** The badge counts the list.
+- **Seats remaining is hidden from students.** Seats taken is only knowable
+  through `GET /api/events/:id/registrations`, which is CLUB_ADMIN-only, so the
+  student event screen shows capacity but not a remaining count rather than
+  guessing at one.
+- **Attendance has one source of truth: the backend.** After every mark the
+  list is refetched rather than patched locally.
+- **Club membership is `PENDING` on join.** The UI shows "Request pending" and
+  never "Joined" until the backend reports `APPROVED`.
+- **Students only ever treat `status === "PUBLISHED"` as a visible event.**
 
 ---
 
@@ -54,194 +132,111 @@ Reported, not changed — the frontend branch does not touch `backend/`.
    Linux/macOS/CI.
 2. **`eventRoutes.js` registers `PATCH /:id/publish` twice** — once for
    `SYSTEM_ADMIN`, once for `FACULTY_COORDINATOR`. Express matches the first, so
-   the faculty route is dead code. The frontend treats publish as SYSTEM_ADMIN.
+   the faculty route is dead code. This happens to agree with the documentation,
+   which lists publish as SYSTEM_ADMIN. The duplicate should still be deleted.
 3. **`POST /api/auth/register` accepts any role, including `SYSTEM_ADMIN`.**
    Anyone can self-register as a system administrator. The frontend only offers
    Student and Club administrator, but that is cosmetic — the endpoint is open.
    Consider restricting self-service registration to `STUDENT` (and possibly
    `CLUB_ADMIN`) and provisioning staff accounts separately.
-4. **There is no `GET /api/events/:id`.** The event detail screen currently reads
-   the published list and selects client-side, which cannot show draft, pending
-   or approved events.
 
 ---
 
-## 3. Endpoints needed next
+## 3. Endpoints still needed
 
-Listed in the order the remaining screens need them.
+Six screens have no endpoint to call. Each is listed with what the frontend
+already expects, so a response shaped this way needs no UI change at all.
 
-### 3.1 Reject an event
+### 3.1 A club admin's own events
 
-```
-FEATURE:   Faculty coordinator returns an event to the club
-METHOD:    PATCH
-ENDPOINT:  /api/events/:id/reject
-AUTH:      Bearer, role FACULTY_COORDINATOR
-REQUEST:   { "reason": "string, optional" }
-RESPONSE:  { "success": true, "message": "Event rejected" }
-ERRORS:    404 event not found · 400 event is not PENDING_APPROVAL · 403 wrong role
-FRONTEND:  Needs a REJECTED value in events.status, and a rejection_reason column
-           surfaced on the event so the club admin can see why. The UI already
-           renders both.
-```
+    GET /api/events/my-events        Role: CLUB_ADMIN
 
-### 3.2 A club admin's own events
+Every event belonging to a club the caller administers, **in all statuses**.
+`GET /api/events` is `PUBLISHED`-only, so a club admin currently cannot see
+their own drafts. Needed by *My events* and the club admin dashboard.
 
-```
-FEATURE:   "My events" for a club administrator
-METHOD:    GET
-ENDPOINT:  /api/events/my-events
-AUTH:      Bearer, role CLUB_ADMIN
-RESPONSE:  { "success": true, "events": [ <event row incl. club_name and status> ] }
-ERRORS:    403 wrong role
-FRONTEND:  Must include every status (DRAFT → PUBLISHED), because the club admin
-           screen groups by status. GET /api/events cannot serve this — it is
-           published-only.
-```
+    { "success": true, "events": [ {
+        "id": 3, "club_id": 7, "club_name": "Coding Club",
+        "title": "AI Workshop", "description": "…",
+        "event_date": "2026-10-01", "event_time": "10:00:00",
+        "venue": "Seminar Hall", "capacity": 50, "eligibility": "All students",
+        "status": "DRAFT", "rejection_reason": null,
+        "registration_count": 12
+    } ] }
 
-### 3.3 Approved events awaiting publication
+`rejection_reason` matters: a club admin needs to read why faculty returned an
+event. `registration_count` saves one request per row.
 
-```
-FEATURE:   Registrar's publish queue
-METHOD:    GET
-ENDPOINT:  /api/events/approved
-AUTH:      Bearer, role SYSTEM_ADMIN
-RESPONSE:  { "success": true, "events": [ <event row incl. club_name> ] }
-ERRORS:    403 wrong role
-FRONTEND:  Mirrors GET /api/events/pending, filtered to status = 'APPROVED'.
-```
+### 3.2 Approved events awaiting publication
 
-### 3.4 Single event
+    GET /api/events/approved         Role: SYSTEM_ADMIN
 
-```
-FEATURE:   Event detail for non-published events
-METHOD:    GET
-ENDPOINT:  /api/events/:id
-AUTH:      Bearer; published events may stay public
-RESPONSE:  { "success": true, "event": { …, "club_name": "…" } }
-ERRORS:    404 · 403 when the caller may not see a non-published event
-FRONTEND:  Replaces the current list-and-filter workaround.
-```
+Events with `status = 'APPROVED'`. Same row shape as §3.1. Without it the
+System Administrator has nothing to publish — `GET /api/events` returns only
+events that are already published.
 
-### 3.5 Review a membership request
+### 3.3 Faculty coordinator lookup
 
-```
-FEATURE:   Club admin approves or rejects a join request
-METHOD:    PATCH
-ENDPOINT:  /api/clubs/:clubId/members/:membershipId
-AUTH:      Bearer, role CLUB_ADMIN, own club only
-REQUEST:   { "status": "APPROVED" | "REJECTED" }
-RESPONSE:  { "success": true, "membership": { …, "status", "reviewed_at" } }
-ERRORS:    404 not found / not your club · 400 already reviewed · 403 wrong role
-FRONTEND:  club_memberships already has status and reviewed_at; nothing new is
-           needed in the schema.
-```
+    GET /api/users/coordinators      Role: CLUB_ADMIN
 
-### 3.6 Clubs owned by a club admin
+    { "success": true, "coordinators": [ { "id": 3, "name": "Dr. N. Kulkarni" } ] }
 
-```
-FEATURE:   "My clubs" for a club administrator
-METHOD:    GET
-ENDPOINT:  /api/clubs/administered
-AUTH:      Bearer, role CLUB_ADMIN
-RESPONSE:  { "success": true, "clubs": [ { …club, "member_count", "pending_count" } ] }
-ERRORS:    403 wrong role
-FRONTEND:  The counts are optional; the frontend can derive them from the members
-           endpoint if they are expensive, but one round trip is cheaper.
-```
+`POST /api/clubs` requires `faculty_coordinator_id` in the code in this repo,
+but nothing exposes the list of valid ids. Either add this, or confirm that the
+documented `{ name, description }` body is correct and the column is nullable.
 
-### 3.7 Faculty coordinator lookup
+### 3.4 Review a membership request
 
-```
-FEATURE:   Choosing a faculty coordinator when registering a club
-METHOD:    GET
-ENDPOINT:  /api/users/coordinators
-AUTH:      Bearer, role CLUB_ADMIN
-RESPONSE:  { "success": true, "users": [ { "id", "name", "email" } ] }
-ERRORS:    403 wrong role
-FRONTEND:  POST /api/clubs requires faculty_coordinator_id, and there is
-           currently no way for the UI to discover a valid id. Must not expose
-           anything beyond id, name and email.
-```
+    PATCH /api/memberships/:membershipId    Role: CLUB_ADMIN
+    { "status": "APPROVED" }                       // or "REJECTED"
 
-### 3.8 Event registration
+`GET /api/clubs/:id/members` already returns `membership_id` for each row, so
+only the decision endpoint is missing. Should 403 unless the caller administers
+that club. Needed by *Club members*, and it is the step that unblocks the whole
+student membership flow — students currently apply and stay `PENDING` forever.
 
-The largest gap. The whole student registration flow is demo-only today.
+### 3.5 Clubs owned by a club admin
 
-```
-FEATURE:   Student registers for a published event
-METHOD:    POST
-ENDPOINT:  /api/events/:id/register
-AUTH:      Bearer, role STUDENT
-REQUEST:   (no body)
-RESPONSE:  { "success": true, "registration": { "id", "event_id", "status",
-             "registered_at" } }
-ERRORS:    404 event not found · 400 event is not PUBLISHED · 409 already
-           registered · 403 not eligible
-FRONTEND:  Assumes status is REGISTERED, or WAITLISTED when the event is at
-           capacity. If waitlisting is out of scope, return 409 when full and
-           the UI will present it as "event full".
-```
+    GET /api/clubs/my-clubs?role=admin   — or —   GET /api/clubs/administered
 
-```
-FEATURE:   Student's own registrations
-METHOD:    GET
-ENDPOINT:  /api/events/my-registrations
-AUTH:      Bearer, role STUDENT
-RESPONSE:  { "success": true, "registrations": [ { "registration_id", "event_id",
-             "status", "registered_at", "cancelled_at", "title", "event_date",
-             "event_time", "venue", "club_id", "club_name" } ] }
-FRONTEND:  The joined event/club fields keep the page to one request. Without
-           them the UI would need N+1 lookups.
-```
+Clubs where `admin_id` is the caller. `GET /api/clubs/my-clubs` is currently
+STUDENT-only and returns memberships, not ownership.
 
-```
-FEATURE:   Cancel a registration
-METHOD:    PATCH (or DELETE)
-ENDPOINT:  /api/events/registrations/:id/cancel
-AUTH:      Bearer, role STUDENT, own registration only
-RESPONSE:  { "success": true, "registration": { "status": "CANCELLED", "cancelled_at" } }
-ERRORS:    404 · 400 already cancelled · 403 not yours
-FRONTEND:  The Cancel button is hidden entirely in live mode until this exists —
-           it is not shown-then-broken.
-```
+    { "success": true, "clubs": [ {
+        "id": 1, "name": "Coding Club", "description": "…",
+        "category": "Technical", "faculty_coordinator_id": 3,
+        "status": "APPROVED", "member_count": 24, "pending_count": 3
+    } ] }
 
-```
-FEATURE:   Attendees for a club admin's event
-METHOD:    GET
-ENDPOINT:  /api/events/:id/registrations
-AUTH:      Bearer, role CLUB_ADMIN, own club only
-RESPONSE:  { "success": true, "event": { "id", "title", "capacity", "club_name" },
-             "registrations": [ { "registration_id", "student_id", "student_name",
-             "student_email", "status", "registered_at" } ] }
-ERRORS:    404 not found / not your club · 403 wrong role
-```
+`member_count` / `pending_count` are conveniences; the screen works without
+them, showing a dash instead.
 
-```
-FEATURE:   Seats remaining on an event
-NEEDED:    Either a `registered_count` field on every event row returned by
-           GET /api/events, or a dedicated capacity endpoint.
-FRONTEND:  Capacity is shown today from events.capacity alone; "N of M seats
-           remaining" stays hidden until a count is available.
-```
+### 3.6 A single event, in any status
 
-### 3.9 Notifications
+    GET /api/events/:id              Role: any (scoped by status)
 
-```
-FEATURE:   In-app notifications
-METHOD:    GET / PATCH
-ENDPOINTS: GET   /api/notifications              -> the signed-in user's notifications
-           PATCH /api/notifications/:id/read     -> mark one read
-           PATCH /api/notifications/read-all     -> mark all read
-AUTH:      Bearer, any role
-RESPONSE:  { "success": true, "notifications": [ { "id", "type", "title", "body",
-             "link", "read", "created_at" } ] }
-FRONTEND:  `type` is shown as a humanised label, so any SCREAMING_SNAKE value
-           works. `link` is an in-app path and may be null. Needs a
-           notifications table. Events that should raise one: membership
-           requested / reviewed, event submitted / approved / rejected /
-           published, registration confirmed.
-```
+Published events to anyone; draft, pending, approved and rejected ones to the
+owning club admin, the faculty coordinator and the system administrator. The
+event detail and faculty review screens currently select from a list because
+this does not exist, which means a direct link to a non-published event cannot
+be opened.
+
+### 3.7 Account management (no equivalent documented)
+
+    GET /api/users                   Role: SYSTEM_ADMIN
+
+The §7 *User / Account Management* screen has nothing at all to call.
+
+    { "success": true, "users": [
+        { "id": 6, "name": "John Doe", "email": "…",
+          "role": "STUDENT", "created_at": "…" }
+    ] }
+
+### Deferred: announcements
+
+The documentation states announcements were deferred and no API was
+implemented. Nothing has been built for them, no endpoint has been invented,
+and no other screen is blocked by their absence.
 
 ---
 
@@ -255,5 +250,5 @@ FRONTEND:  `type` is shown as a humanised label, so any SCREAMING_SNAKE value
   banner states that demo data is in use.
 
 When an endpoint ships, the only change needed is adding the function to the
-matching module in `src/services/api/` and deleting its entry from the `pending`
-map. No page component changes.
+matching module in `src/services/api/` and deleting its entry from the
+`pending` map. No page component changes.

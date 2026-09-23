@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import { DateChip } from '../../components/events/EventRecord.jsx';
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
 import { Button } from '../../components/ui/Button.jsx';
+import { DetailHero } from '../../components/ui/DetailHero.jsx';
 import { ConfirmDialog } from '../../components/ui/Modal.jsx';
 import {
   DetailList,
@@ -129,17 +131,35 @@ export function EventDetailsPage() {
     <>
       <PageHeader
         title={record.title}
-        parent={{ label: 'Browse events', to: '/app/events' }}
-      >
-        <div className="row-wrap" style={{ marginTop: 8 }}>
-          <StatusBadge kind="event" status={record.status} />
-          {past ? (
-            <span className="text-muted" style={{ fontSize: 'var(--fs-13)' }}>
-              This event has already taken place.
+        parent={{ label: 'Back to events', to: '/app/events' }}
+        titleHidden
+      />
+
+      <DetailHero
+        name={record.title}
+        lead={<DateChip date={record.event_date} />}
+        meta={
+          <>
+            <span>{formatTime(record.event_time)}</span>
+            <span className="record__meta-sep">
+              {orPlaceholder(record.venue)}
             </span>
-          ) : null}
-        </div>
-      </PageHeader>
+            {record.club_name ? (
+              <span className="record__meta-sep">{record.club_name}</span>
+            ) : null}
+          </>
+        }
+        action={<StatusBadge kind="event" status={record.status} />}
+      />
+
+      {past ? (
+        <p
+          className="text-muted"
+          style={{ fontSize: 'var(--fs-13)', marginBottom: 'var(--sp-5)' }}
+        >
+          This event has already taken place.
+        </p>
+      ) : null}
 
       <div className="dash-grid">
         <div className="stack">

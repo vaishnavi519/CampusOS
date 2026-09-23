@@ -2,7 +2,9 @@ import { STORAGE_KEYS } from '../../utils/constants.js';
 import { readText, remove, writeText } from '../../utils/storage.js';
 import { ApiError } from '../errors.js';
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(
+// Optional chaining so the module is importable outside Vite — the contract
+// tests exercise it under plain Node, where import.meta.env does not exist.
+const BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '/api').replace(
   /\/$/,
   '',
 );

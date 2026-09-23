@@ -8,33 +8,33 @@
 
 :root {
   /* Surfaces */
-  --c-page: #f6f5f2;
+  --c-page: #f7f7f5;
   --c-surface: #ffffff;
-  --c-surface-sunken: #f1efeb;
-  --c-surface-hover: #f6f5f2;
-  --c-overlay: rgba(28, 27, 25, 0.38);
+  --c-surface-sunken: #f1f1ee;
+  --c-surface-hover: #f8f8f6;
+  --c-overlay: rgba(20, 20, 18, 0.3);
 
   /* Lines */
-  --c-border: #e3e0d9;
-  --c-border-strong: #cbc7bd;
+  --c-border: #e5e4df;
+  --c-border-strong: #d2d1cb;
   --c-border-focus: #8c3b2b;
 
   /* Text */
-  --c-text: #1c1b19;
-  --c-text-secondary: #55524c;
-  --c-text-muted: #85817a;
+  --c-text: #1d1d1b;
+  --c-text-secondary: #62615d;
+  --c-text-muted: #8a8984;
   --c-text-inverse: #faf9f7;
 
   /* Ink — primary actions */
-  --c-ink: #26241f;
-  --c-ink-hover: #3b3833;
-  --c-ink-active: #171612;
+  --c-ink: #262624;
+  --c-ink-hover: #3d3d3a;
+  --c-ink-active: #141413;
 
   /* Brick — identity accent, used sparingly */
-  --c-accent: #8c3b2b;
-  --c-accent-hover: #74301f;
-  --c-accent-soft: #f6ece8;
-  --c-accent-border: #e2c8c0;
+  --c-accent: #8b4938;
+  --c-accent-hover: #713a2d;
+  --c-accent-soft: #f4ebe7;
+  --c-accent-border: #e4cec7;
 
   /* Status */
   --c-success: #2e6a40;
@@ -54,10 +54,10 @@
   --c-neutral-border: #dcd8d1;
 
   /* Type */
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+    sans-serif;
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
-    "Times New Roman", serif;
+    serif;
   --font-mono: ui-monospace, "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas,
     monospace;
 
@@ -85,21 +85,22 @@
   --sp-16: 64px;
 
   /* Radii — deliberately small */
-  --r-sm: 3px;
-  --r-md: 5px;
-  --r-lg: 8px;
+  --r-sm: 5px;
+  --r-md: 8px;
+  --r-lg: 12px;
   --r-pill: 999px;
 
   /* Elevation — reserved for things that float */
-  --shadow-sm: 0 1px 2px rgba(28, 27, 25, 0.07);
-  --shadow-md: 0 10px 28px -12px rgba(28, 27, 25, 0.28),
-    0 2px 6px rgba(28, 27, 25, 0.06);
-  --shadow-lg: 0 24px 60px -20px rgba(28, 27, 25, 0.35);
+  --shadow-sm: 0 1px 2px rgba(28, 28, 25, 0.04),
+    0 2px 8px rgba(28, 28, 25, 0.03);
+  --shadow-md: 0 12px 32px -16px rgba(28, 28, 25, 0.2),
+    0 3px 10px rgba(28, 28, 25, 0.04);
+  --shadow-lg: 0 26px 70px -24px rgba(28, 28, 25, 0.26);
 
   /* Chrome */
-  --sidebar-w: 244px;
-  --topbar-h: 56px;
-  --content-max: 1180px;
+  --sidebar-w: 216px;
+  --topbar-h: 58px;
+  --content-max: 1120px;
 
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
   --dur: 140ms;

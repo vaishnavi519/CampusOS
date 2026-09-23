@@ -3,12 +3,23 @@ import { createService } from './dataSource.js';
 import * as liveAuth from './api/auth.js';
 import * as liveClubs from './api/clubs.js';
 import * as liveEvents from './api/events.js';
+import * as liveRegistrations from './api/registrations.js';
+import * as liveNotifications from './api/notifications.js';
+import * as liveAttendance from './api/attendance.js';
+import * as liveReports from './api/reports.js';
+import * as liveRecommendations from './api/recommendations.js';
+import * as liveStats from './api/stats.js';
 
 import * as demoAuth from './mocks/auth.js';
 import * as demoClubs from './mocks/clubs.js';
 import * as demoEvents from './mocks/events.js';
 import * as demoNotifications from './mocks/notifications.js';
 import * as demoRegistrations from './mocks/registrations.js';
+import * as demoAttendance from './mocks/attendance.js';
+import * as demoReports from './mocks/reports.js';
+import * as demoRecommendations from './mocks/recommendations.js';
+import * as demoStats from './mocks/stats.js';
+import * as demoUsers from './mocks/users.js';
 
 /**
  * The only module screens import data from.
@@ -39,7 +50,7 @@ export const clubService = createService({
     },
     listCoordinators: {
       feature: 'Faculty coordinator lookup',
-      note: 'Needs an endpoint listing users with the FACULTY_COORDINATOR role.',
+      note: 'Needs an endpoint listing users with the FACULTY_COORDINATOR role. POST /api/clubs requires faculty_coordinator_id.',
     },
   },
 });
@@ -48,13 +59,9 @@ export const eventService = createService({
   live: liveEvents,
   demo: demoEvents,
   pending: {
-    rejectEvent: {
-      feature: 'Rejecting an event',
-      note: 'Needs PATCH /api/events/:id/reject. Only approval exists today.',
-    },
     listClubAdminEvents: {
       feature: 'Your events',
-      note: 'Needs an endpoint returning every event for the signed-in club admin, in all statuses.',
+      note: 'Needs an endpoint returning every event for the signed-in club admin, in all statuses. GET /api/events is published-only.',
     },
     listApprovedEvents: {
       feature: 'Approved events',
@@ -68,46 +75,46 @@ export const eventService = createService({
 });
 
 export const registrationService = createService({
-  live: {},
+  live: liveRegistrations,
   demo: demoRegistrations,
-  pending: {
-    listMyRegistrations: {
-      feature: 'Your registrations',
-      note: 'Needs an endpoint returning the signed-in student’s event registrations.',
-    },
-    registerForEvent: {
-      feature: 'Event registration',
-      note: 'Needs POST /api/events/:id/register.',
-    },
-    cancelRegistration: {
-      feature: 'Cancelling a registration',
-      note: 'Needs a cancel endpoint. Until it exists the Cancel action stays hidden in live mode.',
-    },
-    listEventRegistrations: {
-      feature: 'Event attendees',
-      note: 'Needs an endpoint returning registrations for a club admin’s event.',
-    },
-    getRegistrationForEvent: {
-      feature: 'Registration status',
-      note: 'Depends on the registrations API.',
-    },
-    getEventCapacity: {
-      feature: 'Seats remaining',
-      note: 'Depends on the registrations API. Capacity alone is available from the event record.',
-    },
-  },
 });
 
 export const notificationService = createService({
-  live: {},
+  live: liveNotifications,
   demo: demoNotifications,
+});
+
+export const attendanceService = createService({
+  live: liveAttendance,
+  demo: demoAttendance,
+});
+
+export const reportService = createService({
+  live: liveReports,
+  demo: demoReports,
+});
+
+export const recommendationService = createService({
+  live: liveRecommendations,
+  demo: demoRecommendations,
+});
+
+export const statsService = createService({
+  live: liveStats,
+  demo: demoStats,
+});
+
+/**
+ * Account management has no documented endpoint at all, so there is no live
+ * implementation to point at — only the demo one and the notice below.
+ */
+export const userService = createService({
+  live: {},
+  demo: demoUsers,
   pending: {
-    listNotifications: {
-      feature: 'Notifications',
-      note: 'Needs a notifications table and an endpoint returning the signed-in user’s notifications.',
+    listUsers: {
+      feature: 'Account management',
+      note: 'Needs an endpoint listing platform accounts for a SYSTEM_ADMIN. Nothing equivalent is documented.',
     },
-    countUnread: { feature: 'Unread count', note: 'Depends on the notifications API.' },
-    markRead: { feature: 'Marking notifications read', note: 'Depends on the notifications API.' },
-    markAllRead: { feature: 'Marking notifications read', note: 'Depends on the notifications API.' },
   },
 });

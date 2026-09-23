@@ -18,15 +18,14 @@ export const ROLE_LABELS = {
 };
 
 /**
- * Landing route for each role after sign-in.
- * Roles whose workspace has not been built yet land on /workspace, which says
- * so plainly rather than dropping them into a screen meant for someone else.
+ * Landing route for each role after sign-in. Each role owns a route prefix so
+ * nothing but a guard change is needed to keep workspaces apart.
  */
 export const ROLE_HOME = {
   [ROLES.STUDENT]: '/app',
-  [ROLES.CLUB_ADMIN]: '/workspace',
-  [ROLES.FACULTY_COORDINATOR]: '/workspace',
-  [ROLES.SYSTEM_ADMIN]: '/workspace',
+  [ROLES.CLUB_ADMIN]: '/club-admin',
+  [ROLES.FACULTY_COORDINATOR]: '/faculty',
+  [ROLES.SYSTEM_ADMIN]: '/admin',
 };
 
 /** events.status — backend/controllers/eventController.js */
@@ -45,11 +44,17 @@ export const MEMBERSHIP_STATUS = {
   REJECTED: 'REJECTED',
 };
 
-/** Frontend-only until the registrations API exists. */
+/** event_registrations.status — GET /api/my-registrations */
 export const REGISTRATION_STATUS = {
   REGISTERED: 'REGISTERED',
   WAITLISTED: 'WAITLISTED',
   CANCELLED: 'CANCELLED',
+};
+
+/** Attendance status — POST/GET /api/events/:id/attendance */
+export const ATTENDANCE_STATUS = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
 };
 
 export const CLUB_CATEGORIES = [

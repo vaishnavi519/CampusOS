@@ -37,8 +37,8 @@ export function ProfilePage() {
   return (
     <>
       <PageHeader
-        title="Profile"
-        description="Your CampusOS account."
+        title="Your profile"
+        description="Manage your CampusOS account."
         actions={
           <Button icon="log-out" onClick={handleSignOut}>
             Sign out
@@ -55,12 +55,12 @@ export function ProfilePage() {
               onRetry={profile.refetch}
               skeleton={<ListSkeleton rows={2} />}
             >
-              <div className="row" style={{ gap: 'var(--sp-4)', marginBottom: 'var(--sp-5)' }}>
+              <div className="profile-head">
                 <span className="avatar avatar--lg" aria-hidden="true">
                   {initials(record?.name)}
                 </span>
                 <div style={{ minWidth: 0 }}>
-                  <h2 style={{ fontSize: 'var(--fs-18)' }}>
+                  <h2 className="profile-head__name">
                     {orPlaceholder(record?.name)}
                   </h2>
                   <p className="text-muted" style={{ fontSize: 'var(--fs-14)' }}>
@@ -102,6 +102,13 @@ export function ProfilePage() {
         <Panel>
           <PanelHeader title="Data source" />
           <PanelBody className="stack">
+            <p className="status-line">
+              <span
+                className={`status-dot status-dot--${isDemo ? 'demo' : 'live'}`}
+                aria-hidden="true"
+              />
+              <strong>{isDemo ? 'Demo mode' : 'Live backend'}</strong>
+            </p>
             <p className="text-secondary" style={{ fontSize: 'var(--fs-14)', maxWidth: '68ch' }}>
               {isDemo
                 ? 'CampusOS is reading sample data stored in this browser. Nothing you do is sent to the server.'

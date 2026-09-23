@@ -19,6 +19,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle at 82% 0%, rgba(255, 255, 255, 0.92), transparent 34rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.34), transparent 42%);
+}
+
 h1,
 h2,
 h3,
@@ -37,7 +47,7 @@ h3,
 h4 {
   font-weight: 600;
   line-height: 1.3;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
 }
 
 h1 {

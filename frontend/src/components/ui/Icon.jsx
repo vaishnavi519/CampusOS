@@ -184,6 +184,18 @@ const GLYPHS = {
       <path d="M13.6 5.2v13.6" />
     </>
   ),
+  sparkle: (
+    <>
+      <path d="M12 3.4l1.9 5.1 5.1 1.9-5.1 1.9-1.9 5.1-1.9-5.1L5 10.4l5.1-1.9z" />
+      <path d="M18.4 16.4l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7z" />
+    </>
+  ),
+  chart: (
+    <>
+      <path d="M4 20h16" />
+      <path d="M6.8 20V12.4M12 20V5.2M17.2 20v-5.2" />
+    </>
+  ),
 };
 
 export function Icon({ name, size = 18, className, title, ...rest }) {

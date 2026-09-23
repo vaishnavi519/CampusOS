@@ -8,7 +8,7 @@ import {
   CardSkeleton,
   EmptyState,
 } from '../../components/ui/States.jsx';
-import { FilterSelect, SearchInput } from '../../components/ui/Toolbar.jsx';
+import { PillFilter, SearchInput } from '../../components/ui/Toolbar.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useAsync, useDebouncedValue } from '../../hooks/index.js';
@@ -47,7 +47,7 @@ export function BrowseClubsPage() {
       (clubs.data ?? []).map((club) => club.category).filter(Boolean),
     );
     return [
-      { value: 'all', label: 'All categories' },
+      { value: 'all', label: 'All' },
       ...[...found].sort().map((value) => ({ value, label: value })),
     ];
   }, [clubs.data]);
@@ -87,23 +87,17 @@ export function BrowseClubsPage() {
   return (
     <>
       <PageHeader
-        title="Browse clubs"
-        description="Every registered club on campus. Joining sends a request to the club administrator."
+        title="Discover clubs"
+        description="Find communities that match your interests."
       />
 
       <div className="toolbar">
         <SearchInput
           className="toolbar__search"
           label="Search clubs"
-          placeholder="Search by name, description or category"
+          placeholder="Search clubs…"
           value={query}
           onChange={setQuery}
-        />
-        <FilterSelect
-          label="Filter by category"
-          value={category}
-          onChange={setCategory}
-          options={categories}
         />
         <div className="spacer" />
         {clubs.data ? (
@@ -112,6 +106,15 @@ export function BrowseClubsPage() {
             {filtered ? ` of ${clubs.data.length}` : ''}
           </p>
         ) : null}
+      </div>
+
+      <div className="toolbar toolbar--pills">
+        <PillFilter
+          label="Filter by category"
+          value={category}
+          onChange={setCategory}
+          options={categories}
+        />
       </div>
 
       <AsyncSection

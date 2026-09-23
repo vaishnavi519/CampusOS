@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+import { Cover } from '../ui/Cover.jsx';
 import { Icon } from '../ui/Icon.jsx';
 import { StatusBadge } from '../ui/Badge.jsx';
 import {
@@ -32,11 +33,23 @@ export function DateChip({ date }) {
  * @param {object} props.event      Event row from the API.
  * @param {string} props.to         Route for the detail screen.
  * @param {boolean} [props.showStatus]  Show lifecycle status (staff screens).
+ * @param {boolean} [props.showCover]   Lead the row with generated cover art.
  * @param {React.ReactNode} [props.aside]  Trailing content, e.g. a badge.
  */
-export function EventRecord({ event, to, showStatus = false, aside }) {
+export function EventRecord({
+  event,
+  to,
+  showStatus = false,
+  showCover = true,
+  aside,
+}) {
   return (
     <Link className="record" to={to}>
+      {showCover ? (
+        <span className="record__thumb">
+          <Cover name={event.title} />
+        </span>
+      ) : null}
       <DateChip date={event.event_date} />
 
       <div className="record__body">

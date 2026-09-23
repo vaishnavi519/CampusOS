@@ -86,8 +86,9 @@ export function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Create an account"
-      subtitle="Register with your institutional email address."
+      title="Create your account"
+      subtitle="Join your campus community."
+      caption="Same campus. More possibilities."
       footer={
         <>
           Already registered?{' '}

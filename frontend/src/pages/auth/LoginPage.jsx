@@ -47,8 +47,9 @@ export function LoginPage() {
 
   return (
     <AuthLayout
-      title="Sign in"
-      subtitle="Use the account issued by your institution."
+      title="Welcome back"
+      subtitle="Sign in to your account."
+      caption="A more connected campus."
       footer={
         <>
           Do not have an account?{' '}

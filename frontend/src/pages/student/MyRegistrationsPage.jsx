@@ -17,7 +17,6 @@ import { Tabs } from '../../components/ui/Toolbar.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useAsync } from '../../hooks/index.js';
 import { registrationService } from '../../services/index.js';
-import { isDemoMode } from '../../services/dataSource.js';
 import { REGISTRATION_STATUS } from '../../utils/constants.js';
 import {
   formatDate,
@@ -59,12 +58,6 @@ export function MyRegistrationsPage() {
   }, [rows]);
 
   const visible = grouped[tab] ?? [];
-
-  /**
-   * Cancelling is demo-only until the backend exposes an endpoint for it, so
-   * the action is hidden rather than shown and then failing.
-   */
-  const canCancel = isDemoMode();
 
   const handleCancel = async () => {
     setWorking(true);
@@ -169,8 +162,7 @@ export function MyRegistrationsPage() {
 
                 <div className="record__aside">
                   <StatusBadge kind="registration" status={row.status} />
-                  {canCancel &&
-                  row.status !== REGISTRATION_STATUS.CANCELLED &&
+                  {row.status !== REGISTRATION_STATUS.CANCELLED &&
                   !isPastDate(row.event_date) ? (
                     <Button
                       size="sm"

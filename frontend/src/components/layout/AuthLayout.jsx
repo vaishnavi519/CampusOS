@@ -16,54 +16,33 @@ const FLOW = [
 ];
 
 /**
- * Two-pane frame for sign-in and registration. The left pane explains the
- * approval chain, which is the part of CampusOS people most often get wrong.
- * It is hidden below 900px rather than stacked, so the form stays above the fold.
+ * Two-pane auth frame matching the reference composition: a form panel and a
+ * large campus image panel with overlaid copy.
  */
 export function AuthLayout({ title, subtitle, children, footer }) {
   return (
     <div className="auth">
-      <section className="auth__aside">
-        <Brand />
-
-        <div className="auth__aside-body">
-          <h1 className="auth__headline">
-            Every club, every event, one approval trail.
-          </h1>
-          <p className="auth__lede">
-            CampusOS keeps club membership and event scheduling in one place, so
-            students see what is actually happening and staff can see who
-            approved it.
-          </p>
-
-          <ol className="auth__flow">
-            {FLOW.map((step, index) => (
-              <li className="auth__flow-step" key={step.title}>
-                <span className="auth__flow-index" aria-hidden="true">
-                  {index + 1}
-                </span>
-                <span>
-                  <strong>{step.title}</strong> — {step.detail}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        <p className="auth__foot">
-          Campus club and event management · Academic project build
-        </p>
-      </section>
-
       <section className="auth__panel">
         <div className="auth__panel-inner">
-          <Brand to="/" />
+          <Brand to="/" className="auth__brand" />
           <h2 className="auth__title">{title}</h2>
           <p className="auth__subtitle">{subtitle}</p>
           {children}
           {footer ? <p className="auth__switch">{footer}</p> : null}
         </div>
       </section>
+
+      <aside className="auth__visual" aria-label="Campus feature imagery">
+        <div className="auth__visual-tag">Campus network</div>
+
+        <div className="auth__visual-copy">
+          <h3>A more connected campus.</h3>
+          <p>
+            Empowering student communities, collaborative spaces, and university
+            life across departments.
+          </p>
+        </div>
+      </aside>
     </div>
   );
 }

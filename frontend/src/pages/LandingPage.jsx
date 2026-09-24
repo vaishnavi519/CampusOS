@@ -9,15 +9,11 @@ const ROLE_SUMMARY = [
   },
   {
     title: 'Club administrators',
-    body: 'Manage members, draft events, and send them up for faculty approval.',
+    body: 'Manage members, draft events, and move them through approval with clarity.',
   },
   {
     title: 'Faculty coordinators',
-    body: 'Review what clubs propose and approve events before anyone can register.',
-  },
-  {
-    title: 'Registrar',
-    body: 'Publish approved events to the campus calendar.',
+    body: 'Review submissions, approve the right events, and keep campus programs consistent.',
   },
 ];
 
@@ -59,6 +55,8 @@ export function LandingPage() {
             </Button>
           </div>
         </div>
+
+        <div className="landing__image" aria-hidden="true" />
 
         <div className="landing__roles">
           {ROLE_SUMMARY.map((role) => (

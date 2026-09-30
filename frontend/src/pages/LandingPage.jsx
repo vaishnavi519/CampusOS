@@ -46,6 +46,8 @@ export function LandingPage() {
             </Button>
           </div>
         </div>
+
+        <div className="landing__image" />
       </main>
     </div>
   );

@@ -3,32 +3,21 @@ import { Link } from 'react-router-dom';
 
 import { StatusBadge } from '../ui/Badge.jsx';
 import { Tag } from '../ui/Badge.jsx';
-import { initials, orPlaceholder } from '../../utils/format.js';
+import { orPlaceholder } from '../../utils/format.js';
+import { generatedLogo } from '../../utils/generatedLogo.js';
 
 /**
- * Club mark: the real logo when one is available, falling back to a
- * monogram if the image fails to load or none was provided.
+ * Club mark: the real logo when one is available, falling back to an
+ * auto-generated monogram mark if the image fails to load or none was provided.
  */
 function ClubMark({ club, size = 'md' }) {
   const [failed, setFailed] = useState(false);
   const className = size === 'lg' ? 'club-monogram club-monogram--lg' : 'club-monogram';
-
-  if (club.logo_url && !failed) {
-    return (
-      <span className={className} aria-hidden="true">
-        <img
-          src={club.logo_url}
-          alt=""
-          loading="lazy"
-          onError={() => setFailed(true)}
-        />
-      </span>
-    );
-  }
+  const src = club.logo_url && !failed ? club.logo_url : generatedLogo(club.name);
 
   return (
     <span className={className} aria-hidden="true">
-      {initials(club.name)}
+      <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} />
     </span>
   );
 }

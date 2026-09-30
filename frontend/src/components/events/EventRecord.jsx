@@ -47,7 +47,7 @@ export function EventRecord({
     <Link className="record" to={to}>
       {showCover ? (
         <span className="record__thumb">
-          <Cover name={event.title} />
+          <Cover name={event.title} logoUrl={event.club_logo_url} />
         </span>
       ) : null}
       <DateChip date={event.event_date} />

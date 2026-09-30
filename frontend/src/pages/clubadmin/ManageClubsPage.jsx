@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ClubMark } from '../../components/clubs/ClubCard.jsx';
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
 import { Button } from '../../components/ui/Button.jsx';
 import { Field, Input, Select, Textarea } from '../../components/ui/Field.jsx';
@@ -16,7 +17,6 @@ import { useAsync } from '../../hooks/index.js';
 import { clubService } from '../../services/index.js';
 import { NotImplementedError } from '../../services/errors.js';
 import { CLUB_CATEGORIES } from '../../utils/constants.js';
-import { initials } from '../../utils/format.js';
 
 /** The clubs this administrator owns, and the form that creates a new one. */
 export function ManageClubsPage() {
@@ -86,9 +86,7 @@ export function ManageClubsPage() {
           <div className="record-list">
             {rows.map((club) => (
               <div className="record" key={club.id}>
-                <span className="club-monogram" aria-hidden="true">
-                  {initials(club.name)}
-                </span>
+                <ClubMark club={club} />
 
                 <div className="record__body">
                   <p className="record__title">

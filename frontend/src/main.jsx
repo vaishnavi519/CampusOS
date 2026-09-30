@@ -4,7 +4,6 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
-import { DataSourceProvider } from './context/DataSourceContext.jsx';
 import { NotificationProvider } from './context/NotificationContext.jsx';
 import { PageMetaProvider } from './context/PageMetaContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
@@ -14,17 +13,15 @@ import './index.css';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <DataSourceProvider>
-        <AuthProvider>
-          <NotificationProvider>
-            <ToastProvider>
-              <PageMetaProvider>
-                <App />
-              </PageMetaProvider>
-            </ToastProvider>
-          </NotificationProvider>
-        </AuthProvider>
-      </DataSourceProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <ToastProvider>
+            <PageMetaProvider>
+              <App />
+            </PageMetaProvider>
+          </ToastProvider>
+        </NotificationProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>,
 );

@@ -6,11 +6,21 @@ import { clone, commit, latency, nextId, snapshot } from './store.js';
 
 /** Demo implementations of the club endpoints, plus the ones still to be built. */
 
-const publicFields = ({ id, name, description, category, created_at }) => ({
+const publicFields = ({
   id,
   name,
   description,
   category,
+  logo_url,
+  website,
+  created_at,
+}) => ({
+  id,
+  name,
+  description,
+  category,
+  logo_url,
+  website,
   created_at,
 });
 
@@ -85,6 +95,8 @@ export async function listMyMemberships() {
         name: club?.name ?? 'Unknown club',
         description: club?.description ?? null,
         category: club?.category ?? null,
+        logo_url: club?.logo_url ?? null,
+        website: club?.website ?? null,
         status: row.status,
         applied_at: row.applied_at,
         reviewed_at: row.reviewed_at,

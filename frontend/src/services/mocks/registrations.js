@@ -8,11 +8,7 @@ import { pushNotification } from './notifications.js';
 import { requireRole } from './session.js';
 import { clone, commit, latency, nextId, snapshot } from './store.js';
 
-/**
- * BACKEND-PENDING: event registration does not exist in the backend yet.
- * Everything here is demo-only. In live mode these calls raise
- * NotImplementedError and the UI says so plainly.
- */
+/** Local registration operations used by the mock data layer. */
 
 const isActive = (row) => row.status !== REGISTRATION_STATUS.CANCELLED;
 

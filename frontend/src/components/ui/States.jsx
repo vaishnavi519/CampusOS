@@ -100,8 +100,7 @@ export function PendingBackendNotice({ error, className }) {
       </p>
       <p className="state__desc">
         {error?.note ??
-          'The backend endpoint this screen needs has not been built yet.'}{' '}
-        Switch to demo data from the account menu to try the flow.
+          'This feature is not available yet.'}
       </p>
     </div>
   );

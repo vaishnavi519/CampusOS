@@ -10,9 +10,9 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-The app starts in **demo mode**: it reads a sample dataset held in your browser,
-so you can use every screen without a database. A banner across the top says so,
-and nothing is sent to the server while it is on.
+The app uses a sample dataset held in your browser, so you can use every screen
+without a database or network connection. Changes persist in local storage and
+can be reset from the account menu or profile page.
 
 Demo accounts (password `campus123` for all of them):
 
@@ -24,21 +24,6 @@ Demo accounts (password `campus123` for all of them):
 | `admin@campus.edu` | System administrator |
 
 The sign-in screen lists them; clicking one fills the form.
-
-### Running against the real backend
-
-1. Start the Express API (`cd backend && npm install && node server.js`) with its
-   `.env` and a reachable MySQL instance.
-2. In CampusOS, open the account menu (bottom-left) → **Connect to live API**.
-   Switching signs you out, because demo and live credentials are different.
-
-`npm run dev` proxies `/api` to `http://localhost:5000`, so no CORS setup or
-absolute URL is needed. To point somewhere else, copy `.env.example` to
-`.env.local` and set `VITE_API_PROXY_TARGET`. **Never commit a `.env` file.**
-
-Endpoints the backend has not built yet do not fall back to fake data in live
-mode — the affected screen says exactly which endpoint it is waiting for. See
-[BACKEND_INTEGRATION.md](./BACKEND_INTEGRATION.md).
 
 ## Scripts
 
@@ -72,10 +57,7 @@ src/
 │   ├── admin/        Dashboard, approved events, statistics, accounts
 │   └── shared/       Notifications, Profile, 404, workspace fallback
 ├── services/
-│   ├── api/          Live HTTP calls — one module per backend router,
-│   │                 plus contract.test.js asserting method/path/body
-│   ├── mocks/        Demo dataset and the operations over it
-│   ├── dataSource.js Live/demo switch + service factory
+│   ├── mocks/        Local dataset and the operations over it
 │   ├── errors.js     ApiError / NotImplementedError
 │   └── index.js      The only module pages import data from
 ├── context/          Auth, DataSource, Notifications, Toast, PageMeta
@@ -86,12 +68,9 @@ src/
 
 ### How data flows
 
-Pages call `clubService` / `eventService` / … from `services/index.js`. Each of
-those is built by `createService({ live, demo })`, which picks the live or demo
-implementation **at call time**. A method that exists in `demo` but not in `live`
-is a feature the backend has not shipped: in live mode it rejects with
-`NotImplementedError`, and `<AsyncSection>` renders a notice naming the missing
-endpoint. No screen ever quietly shows demo data while claiming to be live.
+Pages call `clubService` / `eventService` / … from `services/index.js`. Those
+services are the local mock implementations, backed by a browser-persisted store.
+There are no HTTP requests or server credentials in the frontend.
 
 ### Conventions
 
@@ -113,11 +92,6 @@ only where each item is a thing you act on; dense lists use rows and tables.
 
 ## Authentication
 
-The JWT is stored in `localStorage` and attached as `Authorization: Bearer …` by
-`services/api/client.js`. A 401 from any request signs the user out once, through
-a single subscription in `AuthContext`. Route guards are a UX affordance only —
-the backend remains the authority on what each role may do.
-
-Registration does not return a token (the backend's `/auth/register` returns the
-user record), so a successful registration is followed by a real `/auth/login`
-call with the same credentials.
+Authentication is simulated locally. The seeded accounts and newly registered
+accounts are stored in the browser, and a successful registration signs in
+through the same local mock service.

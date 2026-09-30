@@ -3,14 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '../ui/Icon.jsx';
 import { Menu, MenuItem, MenuLabel, MenuLink, MenuSeparator } from '../ui/Menu.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useDataSource } from '../../context/DataSourceContext.jsx';
 import { ROLE_LABELS } from '../../utils/constants.js';
 import { initials } from '../../utils/format.js';
 
 /** Identity, data-source switch and sign-out — the sidebar footer control. */
 export function AccountMenu() {
   const { user, signOut } = useAuth();
-  const { isDemo, useDemoData, useLiveApi, resetDemoData } = useDataSource();
   const navigate = useNavigate();
 
   if (!user) return null;
@@ -46,27 +44,6 @@ export function AccountMenu() {
           Profile
         </Link>
       </MenuLink>
-
-      <MenuSeparator />
-
-      <MenuLabel>Data source</MenuLabel>
-      {isDemo ? (
-        <>
-          <MenuItem onClick={useLiveApi}>
-            <Icon name="database" size={16} />
-            Connect to live API
-          </MenuItem>
-          <MenuItem onClick={resetDemoData}>
-            <Icon name="refresh" size={16} />
-            Reset demo data
-          </MenuItem>
-        </>
-      ) : (
-        <MenuItem onClick={useDemoData}>
-          <Icon name="database" size={16} />
-          Switch to demo data
-        </MenuItem>
-      )}
 
       <MenuSeparator />
 

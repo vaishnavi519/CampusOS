@@ -5,7 +5,11 @@ const {
     submitEventForApproval,
     getPendingEvents,
     approveEvent,
-    publishEvent
+    publishEvent,
+    rejectEvent,
+    listAdminEvents,
+    listApprovedEvents,
+    getEventById
 } = require("../controllers/eventController");
 
 const {
@@ -17,6 +21,8 @@ const router = express.Router();
 
 // Students can view published events
 router.get("/", getAllEvents);
+router.get("/my-events", protect, authorize("CLUB_ADMIN"), listAdminEvents);
+router.get("/approved", protect, authorize("SYSTEM_ADMIN"), listApprovedEvents);
 
 router.post(
     "/",
@@ -40,6 +46,13 @@ router.patch(
 );
 
 router.patch(
+    "/:id/reject",
+    protect,
+    authorize("FACULTY_COORDINATOR"),
+    rejectEvent
+);
+
+router.patch(
     "/:id/publish",
     protect,
     authorize("SYSTEM_ADMIN"),
@@ -53,11 +66,6 @@ router.patch(
     submitEventForApproval
 );
 
-router.patch(
-    "/:id/publish",
-    protect,
-    authorize("FACULTY_COORDINATOR"),
-    publishEvent
-);
+router.get("/:id", getEventById);
 
 module.exports = router;

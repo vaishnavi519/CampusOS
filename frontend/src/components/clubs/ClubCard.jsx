@@ -1,8 +1,37 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { StatusBadge } from '../ui/Badge.jsx';
 import { Tag } from '../ui/Badge.jsx';
 import { initials, orPlaceholder } from '../../utils/format.js';
+
+/**
+ * Club mark: the real logo when one is available, falling back to a
+ * monogram if the image fails to load or none was provided.
+ */
+function ClubMark({ club, size = 'md' }) {
+  const [failed, setFailed] = useState(false);
+  const className = size === 'lg' ? 'club-monogram club-monogram--lg' : 'club-monogram';
+
+  if (club.logo_url && !failed) {
+    return (
+      <span className={className} aria-hidden="true">
+        <img
+          src={club.logo_url}
+          alt=""
+          loading="lazy"
+          onError={() => setFailed(true)}
+        />
+      </span>
+    );
+  }
+
+  return (
+    <span className={className} aria-hidden="true">
+      {initials(club.name)}
+    </span>
+  );
+}
 
 /**
  * A club in the browse grid. Cards earn their place here: each item is a
@@ -12,9 +41,7 @@ export function ClubCard({ club, to, membershipStatus, action }) {
   return (
     <article className="club-card">
       <header className="club-card__head">
-        <span className="club-monogram" aria-hidden="true">
-          {initials(club.name)}
-        </span>
+        <ClubMark club={club} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <h3>
             <Link className="club-card__name" to={to}>
@@ -50,9 +77,7 @@ export function ClubCard({ club, to, membershipStatus, action }) {
 export function ClubSummary({ club, to }) {
   return (
     <Link className="record" to={to}>
-      <span className="club-monogram" aria-hidden="true">
-        {initials(club.name)}
-      </span>
+      <ClubMark club={club} />
       <div className="record__body">
         <p className="record__title">{club.name}</p>
         <p className="record__meta">{orPlaceholder(club.category)}</p>
@@ -60,3 +85,5 @@ export function ClubSummary({ club, to }) {
     </Link>
   );
 }
+
+export { ClubMark };

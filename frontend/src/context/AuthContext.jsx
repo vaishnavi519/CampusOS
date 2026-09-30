@@ -9,10 +9,8 @@ import {
 } from 'react';
 
 import { authService } from '../services/index.js';
-import { getToken, onUnauthorized, setToken } from '../services/api/client.js';
-import { subscribeToDataSource } from '../services/dataSource.js';
 import { STORAGE_KEYS } from '../utils/constants.js';
-import { readJSON, remove, writeJSON } from '../utils/storage.js';
+import { readJSON, readText, remove, writeJSON, writeText } from '../utils/storage.js';
 
 const AuthContext = createContext(null);
 
@@ -28,7 +26,7 @@ export function AuthProvider({ children }) {
 
   const [user, setUser] = useState(cached.current);
   const [status, setStatus] = useState(
-    getToken() ? 'checking' : 'anonymous',
+    readText(STORAGE_KEYS.token) ? 'checking' : 'anonymous',
   );
 
   const persist = useCallback((nextUser) => {
@@ -39,14 +37,14 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(() => {
     authService.logout?.();
-    setToken(null);
+    remove(STORAGE_KEYS.token);
     persist(null);
     setStatus('anonymous');
   }, [persist]);
 
   /* Revalidate a restored session. */
   useEffect(() => {
-    if (!getToken()) {
+    if (!readText(STORAGE_KEYS.token)) {
       setStatus('anonymous');
       return;
     }
@@ -65,9 +63,7 @@ export function AuthProvider({ children }) {
           signOut();
           return;
         }
-        // The server is unreachable but the token may still be good — keep the
-        // cached identity rather than forcing a sign-in the user cannot do.
-        setStatus(cached.current ? 'authenticated' : 'anonymous');
+        setStatus('anonymous');
       });
 
     return () => {
@@ -75,16 +71,10 @@ export function AuthProvider({ children }) {
     };
   }, [persist, signOut]);
 
-  /* A 401 from any request ends the session. */
-  useEffect(() => onUnauthorized(() => signOut()), [signOut]);
-
-  /* Switching between live and demo invalidates the current credentials. */
-  useEffect(() => subscribeToDataSource(() => signOut()), [signOut]);
-
   const signIn = useCallback(
     async (credentials) => {
       const { token, user: profile } = await authService.login(credentials);
-      setToken(token);
+      writeText(STORAGE_KEYS.token, token);
       persist(profile);
       setStatus('authenticated');
       return profile;

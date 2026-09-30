@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ClubMark } from '../../components/clubs/ClubCard.jsx';
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
 import { Button } from '../../components/ui/Button.jsx';
@@ -14,7 +15,7 @@ import { Tabs } from '../../components/ui/Toolbar.jsx';
 import { useAsync } from '../../hooks/index.js';
 import { clubService } from '../../services/index.js';
 import { MEMBERSHIP_STATUS } from '../../utils/constants.js';
-import { formatDate, initials, orPlaceholder } from '../../utils/format.js';
+import { formatDate, orPlaceholder } from '../../utils/format.js';
 
 const FILTERS = [
   { value: 'all', label: 'All' },
@@ -101,9 +102,7 @@ export function MyClubsPage() {
                 className="record"
                 to={`/app/clubs/${row.club_id}`}
               >
-                <span className="club-monogram" aria-hidden="true">
-                  {initials(row.name)}
-                </span>
+                <ClubMark club={row} />
 
                 <div className="record__body">
                   <p className="record__title">{row.name}</p>

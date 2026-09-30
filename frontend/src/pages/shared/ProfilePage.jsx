@@ -7,11 +7,9 @@ import {
   DetailList,
   Panel,
   PanelBody,
-  PanelHeader,
 } from '../../components/ui/Panel.jsx';
-import { Alert, AsyncSection, ListSkeleton } from '../../components/ui/States.jsx';
+import { AsyncSection, ListSkeleton } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useDataSource } from '../../context/DataSourceContext.jsx';
 import { useAsync } from '../../hooks/index.js';
 import { authService } from '../../services/index.js';
 import { ROLE_LABELS } from '../../utils/constants.js';
@@ -23,7 +21,6 @@ import { formatDate, initials, orPlaceholder } from '../../utils/format.js';
  */
 export function ProfilePage() {
   const { user, signOut } = useAuth();
-  const { isDemo, useLiveApi, useDemoData, resetDemoData } = useDataSource();
   const navigate = useNavigate();
 
   const profile = useAsync(() => authService.getProfile(), []);
@@ -99,45 +96,6 @@ export function ProfilePage() {
           </PanelBody>
         </Panel>
 
-        <Panel>
-          <PanelHeader title="Data source" />
-          <PanelBody className="stack">
-            <p className="status-line">
-              <span
-                className={`status-dot status-dot--${isDemo ? 'demo' : 'live'}`}
-                aria-hidden="true"
-              />
-              <strong>{isDemo ? 'Demo mode' : 'Live backend'}</strong>
-            </p>
-            <p className="text-secondary" style={{ fontSize: 'var(--fs-14)', maxWidth: '68ch' }}>
-              {isDemo
-                ? 'CampusOS is reading sample data stored in this browser. Nothing you do is sent to the server.'
-                : 'CampusOS is reading from the live backend. Features whose endpoints do not exist yet will say so on the screen that needs them.'}
-            </p>
-
-            <div className="row-wrap">
-              {isDemo ? (
-                <>
-                  <Button icon="database" onClick={useLiveApi}>
-                    Connect to live API
-                  </Button>
-                  <Button variant="ghost" icon="refresh" onClick={resetDemoData}>
-                    Reset demo data
-                  </Button>
-                </>
-              ) : (
-                <Button icon="database" onClick={useDemoData}>
-                  Switch to demo data
-                </Button>
-              )}
-            </div>
-
-            <Alert tone="neutral">
-              Switching data source signs you out, because credentials are not
-              shared between the demo dataset and the live server.
-            </Alert>
-          </PanelBody>
-        </Panel>
       </div>
     </>
   );

@@ -3,7 +3,6 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { Sidebar } from '../navigation/Sidebar.jsx';
 import { Icon } from '../ui/Icon.jsx';
-import { useDataSource } from '../../context/DataSourceContext.jsx';
 import { useNotifications } from '../../context/NotificationContext.jsx';
 import { usePageMetaValue } from '../../context/PageMetaContext.jsx';
 import { useMediaQuery } from '../../hooks/index.js';
@@ -16,7 +15,6 @@ export function AppLayout() {
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDemo, useLiveApi } = useDataSource();
   const { unreadCount } = useNotifications();
   const { title, parent } = usePageMetaValue();
 
@@ -53,18 +51,6 @@ export function AppLayout() {
       ) : null}
 
       <div className="shell__main">
-        {isDemo ? (
-          <div className="mode-banner">
-            <Icon name="database" size={15} />
-            <span className="mode-banner__text">
-              Showing demo data. Nothing here is saved to the CampusOS server.
-            </span>
-            <button type="button" className="btn btn--link" onClick={useLiveApi}>
-              Use live API
-            </button>
-          </div>
-        ) : null}
-
         <header className="topbar">
           <button
             type="button"

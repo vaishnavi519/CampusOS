@@ -2,11 +2,7 @@ import { ApiError } from '../errors.js';
 import { requireUser } from './session.js';
 import { clone, commit, latency, nextId, snapshot } from './store.js';
 
-/**
- * BACKEND-PENDING: notifications do not exist in the backend at all.
- * The whole module is demo-only; in live mode these calls surface an explicit
- * "waiting on backend" notice instead of inventing data.
- */
+/** Local notification operations used by the mock data layer. */
 
 /**
  * Appends a notification. Called from inside an existing `commit`, so it takes

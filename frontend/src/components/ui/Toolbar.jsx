@@ -94,19 +94,14 @@ export function Tabs({ items, value, onChange, label }) {
   );
 }
 
-/** Segmented pill list used for quick categorical filters. */
-export function PillFilter({ label, value, onChange, options, className }) {
+export function PillFilter({ label, value, onChange, options }) {
   return (
-    <div
-      className={['toolbar__pills', className].filter(Boolean).join(' ')}
-      role="group"
-      aria-label={label}
-    >
+    <div className="pill-filter" role="group" aria-label={label}>
       {options.map((option) => (
         <button
           key={option.value}
           type="button"
-          className={['pill', option.value === value ? 'is-active' : '']
+          className={['pill', option.value === value ? 'pill--active' : '']
             .filter(Boolean)
             .join(' ')}
           aria-pressed={option.value === value}

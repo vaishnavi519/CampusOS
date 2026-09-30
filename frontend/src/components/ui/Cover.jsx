@@ -1,34 +1,36 @@
-import { initials } from '../../utils/format.js';
-
-const PALETTE = [
-  ['#f3d9c9', '#d97b5f'],
-  ['#dfeac8', '#729356'],
-  ['#dfe6ff', '#5c72d8'],
-  ['#f6dfc8', '#b87942'],
-  ['#d9ebf1', '#4d7f96'],
-  ['#f1dfe8', '#9b5d8a'],
-];
-
-function hashString(value) {
-  return [...String(value ?? '')].reduce(
-    (total, char) => total + char.charCodeAt(0),
-    0,
-  );
+function getInitials(name = '') {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('');
 }
 
-export function Cover({ name, className }) {
-  const palette = PALETTE[hashString(name) % PALETTE.length];
-  const [from, to] = palette;
+export function Cover({ name = 'Event' }) {
+  const initials = getInitials(name);
 
   return (
-    <span
-      className={['cover', className].filter(Boolean).join(' ')}
-      aria-hidden="true"
+    <div
+      className="event-cover"
+      aria-label={`${name} cover`}
       style={{
-        background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
+        width: '100%',
+        height: '100%',
+        minHeight: 80,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background:
+          'linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%)',
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 700,
+        letterSpacing: 1,
+        borderRadius: 'inherit',
       }}
     >
-      {initials(name)}
-    </span>
+      {initials || 'EV'}
+    </div>
   );
 }

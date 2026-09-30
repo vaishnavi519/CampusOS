@@ -9,7 +9,11 @@ import { clone, commit, latency, nextId, snapshot } from './store.js';
 /** Joins the club name onto an event row, as the backend SQL does. */
 function withClub(event, clubs) {
   const club = clubs.find((row) => row.id === event.club_id);
-  return { ...event, club_name: club?.name ?? 'Unknown club' };
+  return {
+    ...event,
+    club_name: club?.name ?? 'Unknown club',
+    club_logo_url: club?.logo_url ?? null,
+  };
 }
 
 function byDate(a, b) {

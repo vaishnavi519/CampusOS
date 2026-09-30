@@ -7,7 +7,6 @@ import { Field, Input } from '../../components/ui/Field.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { Alert } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useDataSource } from '../../context/DataSourceContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { useForm } from '../../hooks/index.js';
 import { ROLES, ROLE_HOME } from '../../utils/constants.js';
@@ -39,7 +38,6 @@ const SELECTABLE_ROLES = [
 
 export function RegisterPage() {
   const { registerAndSignIn } = useAuth();
-  const { isDemo, useDemoData } = useDataSource();
   const toast = useToast();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -103,18 +101,9 @@ export function RegisterPage() {
           <Alert
             tone="danger"
             title={
-              error.isNetwork
-                ? 'Cannot reach the server'
-                : error.status === 409
-                  ? 'That email is already registered'
-                  : 'Registration failed'
-            }
-            action={
-              error.isNetwork && !isDemo ? (
-                <Button size="sm" onClick={useDemoData}>
-                  Use demo data
-                </Button>
-              ) : null
+              error.status === 409
+                ? 'That email is already registered'
+                : 'Registration failed'
             }
           >
             {error.status === 409 ? (

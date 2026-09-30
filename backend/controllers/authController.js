@@ -31,15 +31,8 @@ const register = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Allow only valid roles
-        const allowedRoles = [
-            "STUDENT",
-            "CLUB_ADMIN",
-            "FACULTY_COORDINATOR",
-            "SYSTEM_ADMIN"
-        ];
-
-        const userRole = allowedRoles.includes(role)
+        // Privileged roles are assigned administratively, never by registration.
+        const userRole = ["STUDENT", "CLUB_ADMIN"].includes(role)
             ? role
             : "STUDENT";
 
@@ -168,14 +161,13 @@ const getProfile = async (req, res) => {
         });
 
     } catch (error) {
-    console.error("REGISTRATION ERROR:", error);
+        console.error("Get profile error:", error);
 
-    res.status(500).json({
-        success: false,
-        message: "Server error during registration",
-        error: error.message
-    });
-}
+        res.status(500).json({
+            success: false,
+            message: "Server error while fetching profile"
+        });
+    }
 };
 
 

@@ -6,7 +6,9 @@ const {
     createClub,
     joinClub,
     getMyClubs,
-    getClubMembers
+    getClubMembers,
+    listAdministeredClubs,
+    reviewMembership
 } = require("../controllers/clubController");
 
 const {
@@ -22,6 +24,13 @@ router.get(
     protect,
     authorize("STUDENT"),
     getMyClubs
+);
+
+router.get(
+    "/administered",
+    protect,
+    authorize("CLUB_ADMIN"),
+    listAdministeredClubs
 );
 
 router.get(
@@ -46,6 +55,11 @@ router.post(
     joinClub
 );
 
-
+router.patch(
+    "/memberships/:membershipId",
+    protect,
+    authorize("CLUB_ADMIN"),
+    reviewMembership
+);
 
 module.exports = router;

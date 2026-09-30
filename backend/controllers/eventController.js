@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const { createNotification } = require("./notificationController");
 
 // Create Event
 const createEvent = async (req, res) => {
@@ -324,11 +325,76 @@ const publishEvent = async (req, res) => {
     }
 };
 
+const rejectEvent = async (req, res) => {
+    try {
+        const reason = String(req.body.rejection_reason || "").trim();
+        if (!reason) return res.status(400).json({ success: false, message: "A rejection reason is required" });
+        const [events] = await db.query(
+            `SELECT e.id, e.title, e.created_by, e.status FROM events e WHERE e.id = ?`,
+            [req.params.id]
+        );
+        if (!events.length) return res.status(404).json({ success: false, message: "Event not found" });
+        if (events[0].status !== "PENDING_APPROVAL") return res.status(400).json({ success: false, message: "Only pending events can be rejected" });
+        await db.query("UPDATE events SET status = 'REJECTED', rejection_reason = ? WHERE id = ?", [reason, req.params.id]);
+        await createNotification(db, { userId: events[0].created_by, type: "EVENT_REJECTED", title: "Event needs changes", message: `${events[0].title}: ${reason}`, link: "/club-admin/events" });
+        res.json({ success: true, message: "Event rejected" });
+    } catch (error) {
+        console.error("Reject event error:", error);
+        res.status(500).json({ success: false, message: "Server error while rejecting event" });
+    }
+};
+
+const eventSelect = `
+    SELECT e.id, e.club_id, c.name AS club_name, e.title, e.description,
+           e.event_date, e.event_time, e.venue, e.capacity, e.eligibility,
+           e.status, e.rejection_reason, e.created_by, e.created_at,
+           (SELECT COUNT(*) FROM event_registrations r
+            WHERE r.event_id = e.id AND r.status <> 'CANCELLED') AS registration_count
+    FROM events e JOIN clubs c ON c.id = e.club_id`;
+
+const listAdminEvents = async (req, res) => {
+    try {
+        const [events] = await db.query(`${eventSelect} WHERE c.admin_id = ? ORDER BY e.event_date ASC, e.event_time ASC`, [req.user.id]);
+        res.json({ success: true, events });
+    } catch (error) {
+        console.error("List admin events error:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching your events" });
+    }
+};
+
+const listApprovedEvents = async (req, res) => {
+    try {
+        const [events] = await db.query(`${eventSelect} WHERE e.status = 'APPROVED' ORDER BY e.event_date ASC, e.event_time ASC`);
+        res.json({ success: true, events });
+    } catch (error) {
+        console.error("List approved events error:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching approved events" });
+    }
+};
+
+const getEventById = async (req, res) => {
+    try {
+        const [events] = await db.query(`${eventSelect} WHERE e.id = ?`, [req.params.id]);
+        if (!events.length) return res.status(404).json({ success: false, message: "Event not found" });
+        const event = events[0];
+        const canSeePrivate = req.user && (req.user.role === "SYSTEM_ADMIN" || req.user.role === "FACULTY_COORDINATOR" || (req.user.role === "CLUB_ADMIN" && event.created_by === req.user.id));
+        if (event.status !== "PUBLISHED" && !canSeePrivate) return res.status(404).json({ success: false, message: "Event not found" });
+        res.json({ success: true, event });
+    } catch (error) {
+        console.error("Get event error:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching event" });
+    }
+};
+
 module.exports = {
     createEvent,
     getAllEvents,
     submitEventForApproval,
     getPendingEvents,
     approveEvent,
-    publishEvent
+    publishEvent,
+    rejectEvent,
+    listAdminEvents,
+    listApprovedEvents,
+    getEventById
 };

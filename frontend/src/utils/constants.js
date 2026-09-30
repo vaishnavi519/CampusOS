@@ -62,14 +62,15 @@ export const CLUB_CATEGORIES = [
   'Cultural',
   'Sports',
   'Literary',
-  'Social Service',
+  'Social',
   'Entrepreneurship',
+  'Professional',
+  'Environmental',
 ];
 
 export const STORAGE_KEYS = {
   token: 'campusos.token',
   user: 'campusos.user',
-  apiMode: 'campusos.apiMode',
   demoState: 'campusos.demo.state',
   demoSession: 'campusos.demo.session',
 };

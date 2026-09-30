@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import { ClubMark } from '../../components/clubs/ClubCard.jsx';
 import { EventRecord } from '../../components/events/EventRecord.jsx';
 import { PageHeader } from '../../components/layout/PageHeader.jsx';
 import { StatusBadge } from '../../components/ui/Badge.jsx';
@@ -24,7 +25,7 @@ import { useAsync } from '../../hooks/index.js';
 import { clubService, eventService } from '../../services/index.js';
 import { NotImplementedError } from '../../services/errors.js';
 import { MEMBERSHIP_STATUS, ROLES } from '../../utils/constants.js';
-import { formatDate, initials, orPlaceholder } from '../../utils/format.js';
+import { formatDate, orPlaceholder } from '../../utils/format.js';
 import { membershipStatus as describeMembership } from '../../utils/status.js';
 
 export function ClubDetailsPage() {
@@ -110,11 +111,7 @@ export function ClubDetailsPage() {
 
       <DetailHero
         name={record.name}
-        lead={
-          <span className="club-monogram" aria-hidden="true">
-            {initials(record.name)}
-          </span>
-        }
+        lead={<ClubMark club={record} size="lg" />}
         meta={
           <>
             {record.category ? <span>{record.category}</span> : null}
@@ -122,6 +119,16 @@ export function ClubDetailsPage() {
               <span className="record__meta-sep">
                 Registered {formatDate(record.created_at)}
               </span>
+            ) : null}
+            {record.website ? (
+              <a
+                className="record__meta-sep"
+                href={record.website}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Official page ↗
+              </a>
             ) : null}
           </>
         }

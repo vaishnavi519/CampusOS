@@ -7,7 +7,6 @@ import { Field, Input } from '../../components/ui/Field.jsx';
 import { Icon } from '../../components/ui/Icon.jsx';
 import { Alert } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { useDataSource } from '../../context/DataSourceContext.jsx';
 import { useForm } from '../../hooks/index.js';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../services/mocks/seed.js';
 import { ROLE_HOME, ROLE_LABELS } from '../../utils/constants.js';
@@ -15,7 +14,6 @@ import { email as emailRule, required } from '../../utils/validation.js';
 
 export function LoginPage() {
   const { signIn } = useAuth();
-  const { isDemo, useDemoData } = useDataSource();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -63,16 +61,7 @@ export function LoginPage() {
         {error ? (
           <Alert
             tone="danger"
-            title={
-              error.isNetwork ? 'Cannot reach the server' : 'Sign-in failed'
-            }
-            action={
-              error.isNetwork && !isDemo ? (
-                <Button size="sm" onClick={useDemoData}>
-                  Use demo data
-                </Button>
-              ) : null
-            }
+            title="Sign-in failed"
           >
             {error.message}
           </Alert>
@@ -134,12 +123,12 @@ export function LoginPage() {
         </Button>
       </form>
 
-      {isDemo ? <DemoAccounts onSelect={useAccount} /> : null}
+      <DemoAccounts onSelect={useAccount} />
     </AuthLayout>
   );
 }
 
-/** Demo-mode helper. Never rendered against the live API. */
+/** Quick access to the seeded local accounts. */
 function DemoAccounts({ onSelect }) {
   return (
     <section style={{ marginTop: 'var(--sp-6)' }}>

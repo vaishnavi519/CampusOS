@@ -1,20 +1,5 @@
 import { Brand } from './Brand.jsx';
 
-const FLOW = [
-  {
-    title: 'Clubs publish an event',
-    detail: 'A club administrator drafts it and submits it for review.',
-  },
-  {
-    title: 'Faculty approves it',
-    detail: 'The coordinator checks the date, venue and eligibility.',
-  },
-  {
-    title: 'The registrar publishes it',
-    detail: 'Only then does it appear to students for registration.',
-  },
-];
-
 /**
  * Two-pane auth frame matching the reference composition: a form panel and a
  * large campus image panel with overlaid copy.

@@ -23,7 +23,7 @@ export function LandingPage() {
 
       <main className="landing__main">
         <div className="landing__hero">
-          <p className="landing__eyebrow">Campus operations</p>
+          <p className="landing__eyebrow"></p>
 
           <h1 className="landing__title">
             Clubs, members and events — with the approvals attached.

@@ -1,21 +1,23 @@
-import { REGISTRATION_STATUS, ROLES } from '../../utils/constants.js';
-import { requireRole } from './session.js';
-import { latency, snapshot } from './store.js';
+import api from "../api.js";
+import { ApiError } from "../errors.js";
 
-/** Demo counterpart of GET /api/stats/platform. */
+async function request(callback) {
+  try {
+    const response = await callback();
+    return response.data;
+  } catch (error) {
+    const status = error.response?.status || 500;
+    const data = error.response?.data;
+
+    throw new ApiError(
+      data?.message ||
+      data?.detail ||
+      "Unable to load platform statistics.",
+      { status }
+    );
+  }
+}
+
 export async function getPlatformStats() {
-  await latency(240);
-  requireRole(ROLES.SYSTEM_ADMIN);
-
-  const { users, clubs, events, registrations, attendance } = snapshot();
-
-  return {
-    total_users: users.length,
-    total_clubs: clubs.length,
-    total_events: events.length,
-    total_registrations: registrations.filter(
-      (row) => row.status !== REGISTRATION_STATUS.CANCELLED,
-    ).length,
-    total_attendance: attendance.length,
-  };
+  return request(() => api.get("/stats/platform"));
 }

@@ -1,82 +1,62 @@
-import { ROLES } from '../../utils/constants.js';
+import api from '../api.js';
 import { ApiError } from '../errors.js';
-import { DEMO_PASSWORD } from './seed.js';
-import { clearSession, requireUser, setSession } from './session.js';
-import { clone, commit, latency, nextId, snapshot } from './store.js';
 
-/** Demo implementations of the auth endpoints. Error cases match the backend. */
+function handleError(error) {
+  const status = error.response?.status;
+  const data = error.response?.data;
 
-const ALLOWED_ROLES = Object.values(ROLES);
+  const message =
+    data?.detail ||
+    data?.message ||
+    data?.email?.[0] ||
+    data?.password?.[0] ||
+    'Something went wrong. Please try again.';
 
-function passwordFor(user) {
-  return snapshot().credentials[user.id] ?? DEMO_PASSWORD;
+  throw new ApiError(message, { status: status || 500 });
 }
 
 export async function login({ email, password }) {
-  await latency();
+  try {
+    const response = await api.post('/auth/login', {
+      email: email.trim(),
+      password,
+    });
 
-  const user = snapshot().users.find(
-    (row) => row.email.toLowerCase() === String(email).trim().toLowerCase(),
-  );
+    const data = response.data;
 
-  if (!user || passwordFor(user) !== password) {
-    throw new ApiError('Invalid email or password.', { status: 401 });
+   return {
+  token: data.tokens?.access || data.access || data.token,
+  user: data.user,
+};
+  } catch (error) {
+    handleError(error);
   }
-
-  setSession(user.id);
-
-  return {
-    // Not a JWT. Demo mode has no server to sign one.
-    token: `demo.${user.id}`,
-    user: clone({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    }),
-  };
 }
 
-export async function register({ name, email, password, role }) {
-  await latency();
+export async function register({ name, email, password }) {
+  try {
+    const response = await api.post('/auth/register', {
+      name: name.trim(),
+      email: email.trim(),
+      password,
+    });
 
-  const normalised = String(email).trim().toLowerCase();
-  const taken = snapshot().users.some(
-    (row) => row.email.toLowerCase() === normalised,
-  );
-
-  if (taken) {
-    throw new ApiError('Email already registered', { status: 409 });
+    return response.data.user;
+  } catch (error) {
+    handleError(error);
   }
-
-  const userRole = ALLOWED_ROLES.includes(role) ? role : ROLES.STUDENT;
-
-  return commit((state) => {
-    const user = {
-      id: nextId('users'),
-      name: String(name).trim(),
-      email: normalised,
-      role: userRole,
-      created_at: new Date().toISOString(),
-    };
-    state.users.push(user);
-    state.credentials[user.id] = password;
-    return clone(user);
-  });
 }
 
 export async function getProfile() {
-  await latency(160);
-  const user = requireUser();
-  return clone({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    created_at: user.created_at,
-  });
+  try {
+    const response = await api.get('/auth/profile');
+
+    return response.data.user || response.data;
+  } catch (error) {
+    handleError(error);
+  }
 }
 
 export function logout() {
-  clearSession();
+  // JWT session is cleared by AuthContext.
 }

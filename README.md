@@ -235,53 +235,6 @@ Some possible improvements for future versions include:
 * 🔎 Improved search and filtering
 * 📱 Progressive Web App support
 
----
 
-## 👩‍💻 Project Team
-
-**CampusOS** is developed as an academic engineering project.
-
-### Contributors
-
-* **Vaishnavi Zavar**
-* Add other team members here
-
----
-
-## 📚 Learning Outcomes
-
-Through this project, we gained practical experience in:
-
-* Web application development
-* Python and Django
-* Database management
-* CRUD operations
-* Frontend-backend integration
-* Git and GitHub
-* Project organization
-* Debugging and testing
-* Software development practices
-
----
-
-## 📌 Project Status
-
-**Status:** 🚧 Under Development
-
-The project is being developed and improved as part of an engineering academic project. Features may be added or modified as development continues.
-
----
-
-## 📄 License
-
-This project was created for educational purposes.
-
-If you plan to make the project open-source, you can add an appropriate license such as the MIT License.
-
----
-
-## ⭐ Acknowledgement
-
-This project was developed as part of our engineering coursework to gain practical experience in building and managing a web-based application.
 
 If you find this project useful or interesting, consider giving the repository a ⭐ on GitHub.

@@ -1,64 +1,72 @@
-import { ApiError } from '../errors.js';
-import { requireUser } from './session.js';
-import { clone, commit, latency, nextId, snapshot } from './store.js';
+import api from "../api.js";
+import { ApiError } from "../errors.js";
+import { requireUser } from "./session.js";
+import { nextId } from "./store.js";
 
-/** Local notification operations used by the mock data layer. */
+// Handle API errors
+function handleError(error) {
+  if (error instanceof ApiError) throw error;
 
-/**
- * Appends a notification. Called from inside an existing `commit`, so it takes
- * the state it should mutate rather than committing again.
- */
+  const status = error.response?.status || 500;
+  const data = error.response?.data;
+
+  throw new ApiError(
+    data?.message ||
+      data?.detail ||
+      "Unable to load notifications. Please try again.",
+    { status }
+  );
+}
+
+// Common API request handler
+async function request(callback) {
+  try {
+    const response = await callback();
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// Create a local notification for existing mock services
 export function pushNotification(state, notification) {
   const row = {
-    id: nextId('notifications'),
+    id: nextId("notifications"),
     read: false,
     created_at: new Date().toISOString(),
     ...notification,
   };
+
   state.notifications.push(row);
   return row;
 }
 
+// Get all notifications for the logged-in user
 export async function listNotifications() {
-  await latency(200);
-  const user = requireUser();
-  return clone(
-    snapshot()
-      .notifications.filter((row) => row.user_id === user.id)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)),
-  );
+  return request(() => api.get("/notifications"));
 }
 
+// Get unread notification count
 export async function countUnread() {
-  const user = requireUser();
-  return snapshot().notifications.filter(
-    (row) => row.user_id === user.id && !row.read,
-  ).length;
+  const data = await request(() =>
+    api.get("/notifications/unread-count")
+  );
+
+  return data.count;
 }
 
+// Mark one notification as read
 export async function markRead(id) {
-  const user = requireUser();
-  return commit((state) => {
-    const row = state.notifications.find(
-      (item) => String(item.id) === String(id) && item.user_id === user.id,
-    );
-    if (!row) throw new ApiError('Notification not found.', { status: 404 });
-    row.read = true;
-    return clone(row);
-  });
+  const data = await request(() =>
+    api.patch(`/notifications/${id}/read`)
+  );
+
+  return data.notification;
 }
 
+// Mark all notifications as read
 export async function markAllRead() {
-  await latency(180);
-  const user = requireUser();
-  return commit((state) => {
-    let changed = 0;
-    for (const row of state.notifications) {
-      if (row.user_id === user.id && !row.read) {
-        row.read = true;
-        changed += 1;
-      }
-    }
-    return { updated: changed };
-  });
+  return request(() =>
+    api.patch("/notifications/read-all")
+  );
 }

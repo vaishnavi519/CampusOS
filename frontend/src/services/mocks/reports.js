@@ -1,50 +1,33 @@
-import { REGISTRATION_STATUS, ROLES } from '../../utils/constants.js';
-import { requireRole } from './session.js';
-import { clone, latency, snapshot } from './store.js';
+import api from "../api.js";
+import { ApiError } from "../errors.js";
 
-/**
- * Demo counterpart of GET /api/reports/my-participation.
- * Aggregated from the same registration and attendance rows the rest of demo
- * mode uses, so the numbers agree with every other screen.
- */
-export async function getMyParticipation() {
-  await latency(240);
-  const student = requireRole(ROLES.STUDENT);
-  const { registrations, attendance, events, clubs } = snapshot();
+function handleError(error) {
+  if (error instanceof ApiError) throw error;
 
-  const mine = registrations.filter(
-    (row) =>
-      row.student_id === student.id &&
-      row.status !== REGISTRATION_STATUS.CANCELLED,
+  const status = error.response?.status || 500;
+  const data = error.response?.data;
+
+  throw new ApiError(
+    data?.message ||
+      data?.detail ||
+      "Unable to load your participation. Please try again.",
+    { status }
   );
+}
 
-  const report = mine
-    .map((row) => {
-      const event = events.find((item) => item.id === row.event_id);
-      const club = clubs.find((item) => item.id === event?.club_id);
-      const marked = attendance.find(
-        (item) => item.event_id === row.event_id && item.student_id === student.id,
-      );
+async function request(callback) {
+  try {
+    const response = await callback();
+    return response.data;
+  } catch (error) {
+    handleError(error);
+  }
+}
 
-      return {
-        event_id: row.event_id,
-        attendance_status: marked?.status ?? null,
-        registration_status: row.status,
-        title: event?.title ?? null,
-        event_date: event?.event_date ?? null,
-        event_time: event?.event_time ?? null,
-        venue: event?.venue ?? null,
-        club_name: club?.name ?? null,
-      };
-    })
-    .sort((a, b) => String(b.event_date).localeCompare(String(a.event_date)));
+export async function listMyParticipation() {
+  return request(() => api.get("/reports/my-participation"));
+}
 
-  return clone({
-    summary: {
-      total_registered: report.length,
-      total_attended: report.filter((row) => row.attendance_status === 'PRESENT')
-        .length,
-    },
-    report,
-  });
+export async function getMyParticipation() {
+  return listMyParticipation();
 }

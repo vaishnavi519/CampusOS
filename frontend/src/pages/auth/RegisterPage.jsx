@@ -29,11 +29,6 @@ const SELECTABLE_ROLES = [
     title: 'Student',
     description: 'Join clubs and register for events.',
   },
-  {
-    value: ROLES.CLUB_ADMIN,
-    title: 'Club administrator',
-    description: 'Run a club, manage members and propose events.',
-  },
 ];
 
 export function RegisterPage() {

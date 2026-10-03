@@ -6,7 +6,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from campusos.models import Events, Clubs
+from campusos.models import (
+    Events,
+    Clubs,
+    Attendance,
+    EventRegistrations,
+    Users,
+)
 
 
 def event_data(event):
@@ -52,6 +58,8 @@ def can_manage_event(user, event):
     )
 
 
+# GET /api/events
+# POST /api/events
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def event_list(request):
@@ -59,14 +67,18 @@ def event_list(request):
     if request.method == "GET":
 
         if request.user.role == "STUDENT":
-            events = Events.objects.filter(status="PUBLISHED")
+            events = Events.objects.filter(
+                status="PUBLISHED"
+            )
 
         elif request.user.role == "CLUB_ADMIN":
             club_ids = Clubs.objects.filter(
                 admin_id=request.user.id
             ).values_list("id", flat=True)
 
-            events = Events.objects.filter(club_id__in=club_ids)
+            events = Events.objects.filter(
+                club_id__in=club_ids
+            )
 
         elif request.user.role == "FACULTY_COORDINATOR":
             club_ids = Clubs.objects.filter(
@@ -75,7 +87,11 @@ def event_list(request):
 
             events = Events.objects.filter(
                 club_id__in=club_ids,
-                status="PENDING_APPROVAL"
+                status__in=[
+                    "PENDING_APPROVAL",
+                    "APPROVED",
+                    "PUBLISHED",
+                ]
             )
 
         else:
@@ -83,7 +99,10 @@ def event_list(request):
 
         return Response([
             event_data(event)
-            for event in events.order_by("event_date", "event_time")
+            for event in events.order_by(
+                "event_date",
+                "event_time"
+            )
         ])
 
     # CREATE EVENT
@@ -117,7 +136,7 @@ def event_list(request):
         "event_date",
         "event_time",
         "venue",
-        "capacity"
+        "capacity",
     ]
 
     for field in required:
@@ -138,7 +157,7 @@ def event_list(request):
             capacity=int(request.data["capacity"]),
             eligibility=request.data.get("eligibility"),
             status="DRAFT",
-            created_by_id=request.user.id
+            created_by_id=request.user.id,
         )
     except (ValueError, TypeError, IntegrityError):
         return Response(
@@ -149,12 +168,13 @@ def event_list(request):
     return Response(
         {
             "message": "Event created successfully",
-            "event": event_data(event)
+            "event": event_data(event),
         },
         status=status.HTTP_201_CREATED
     )
 
 
+# GET /api/events/<event_id>
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def event_detail(request, event_id):
@@ -179,6 +199,7 @@ def event_detail(request, event_id):
     return Response(event_data(event))
 
 
+# GET /api/my-events
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def my_events(request):
@@ -203,6 +224,7 @@ def my_events(request):
     ])
 
 
+# GET /api/events/pending
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def pending_events(request):
@@ -228,6 +250,7 @@ def pending_events(request):
     ])
 
 
+# GET /api/events/approved
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def approved_events(request):
@@ -248,6 +271,7 @@ def approved_events(request):
     ])
 
 
+# PATCH /api/events/<event_id>/submit
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def submit_event(request, event_id):
@@ -260,8 +284,9 @@ def submit_event(request, event_id):
             status=status.HTTP_404_NOT_FOUND
         )
 
-    if request.user.role != "CLUB_ADMIN" or not can_manage_event(
-        request.user, event
+    if (
+        request.user.role != "CLUB_ADMIN"
+        or not can_manage_event(request.user, event)
     ):
         return Response(
             {"message": "Club admin access required"},
@@ -280,10 +305,11 @@ def submit_event(request, event_id):
 
     return Response({
         "message": "Event submitted for faculty approval",
-        "event": event_data(event)
+        "event": event_data(event),
     })
 
 
+# PATCH /api/events/<event_id>/approve
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def approve_event(request, event_id):
@@ -321,15 +347,16 @@ def approve_event(request, event_id):
     event.save(update_fields=[
         "status",
         "approved_by",
-        "approved_at"
+        "approved_at",
     ])
 
     return Response({
         "message": "Event approved successfully",
-        "event": event_data(event)
+        "event": event_data(event),
     })
 
 
+# PATCH /api/events/<event_id>/reject
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def reject_event(request, event_id):
@@ -362,15 +389,16 @@ def reject_event(request, event_id):
 
     event.save(update_fields=[
         "status",
-        "rejection_reason"
+        "rejection_reason",
     ])
 
     return Response({
         "message": "Event rejected",
-        "event": event_data(event)
+        "event": event_data(event),
     })
 
 
+# PATCH /api/events/<event_id>/publish
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def publish_event(request, event_id):
@@ -400,5 +428,178 @@ def publish_event(request, event_id):
 
     return Response({
         "message": "Event published successfully",
-        "event": event_data(event)
+        "event": event_data(event),
+    })
+
+
+# GET /api/events/<event_id>/attendance
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_attendance(request, event_id):
+
+    if request.user.role != "CLUB_ADMIN":
+        return Response(
+            {"message": "Only club admins can view attendance."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    event = Events.objects.filter(id=event_id).first()
+
+    if not event:
+        return Response(
+            {"message": "Event not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    club = Clubs.objects.filter(id=event.club_id).first()
+
+    if not club or club.admin_id != request.user.id:
+        return Response(
+            {"message": "You do not administer this event."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    records = Attendance.objects.filter(
+        event_id=event_id
+    ).order_by("student_id")
+
+    return Response([
+        {
+            "student_id": record.student_id,
+            "status": record.status,
+            "marked_at": record.marked_at,
+        }
+        for record in records
+    ])
+
+
+# POST /api/events/<event_id>/attendance/mark
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_attendance(request, event_id):
+
+    if request.user.role != "CLUB_ADMIN":
+        return Response(
+            {"message": "Only club admins can mark attendance."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    event = Events.objects.filter(id=event_id).first()
+
+    if not event:
+        return Response(
+            {"message": "Event not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    club = Clubs.objects.filter(id=event.club_id).first()
+
+    if not club or club.admin_id != request.user.id:
+        return Response(
+            {"message": "You do not administer this event."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    student_id = request.data.get("student_id")
+    attendance_status = request.data.get("status")
+
+    if not student_id:
+        return Response(
+            {"message": "student_id is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if attendance_status not in ["PRESENT", "ABSENT"]:
+        return Response(
+            {"message": "Status must be PRESENT or ABSENT."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    registered = EventRegistrations.objects.filter(
+        event_id=event_id,
+        student_id=student_id
+    ).exclude(status="CANCELLED").exists()
+
+    if not registered:
+        return Response(
+            {"message": "This student is not registered for the event."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    record, created = Attendance.objects.update_or_create(
+        event_id=event_id,
+        student_id=student_id,
+        defaults={
+            "status": attendance_status,
+            "marked_by_id": request.user.id,
+            "marked_at": timezone.now(),
+        }
+    )
+
+    return Response(
+        {
+            "message": "Attendance marked successfully.",
+            "attendance": {
+                "student_id": record.student_id,
+                "status": record.status,
+                "marked_at": record.marked_at,
+            },
+        },
+        status=(
+            status.HTTP_201_CREATED
+            if created
+            else status.HTTP_200_OK
+        )
+    )
+
+
+# GET /api/events/<event_id>/registrations
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def list_event_registrations(request, event_id):
+
+    event = Events.objects.filter(id=event_id).first()
+
+    if not event:
+        return Response(
+            {"message": "Event not found."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    if not can_manage_event(request.user, event):
+        return Response(
+            {"message": "You are not allowed to view these registrations."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    registrations = EventRegistrations.objects.filter(
+        event_id=event_id
+    ).order_by("-registered_at")
+
+    student_ids = [
+        registration.student_id
+        for registration in registrations
+    ]
+
+    students = Users.objects.filter(
+        id__in=student_ids
+    ).in_bulk()
+
+    registration_list = []
+
+    for registration in registrations:
+        student = students.get(registration.student_id)
+
+        registration_list.append({
+            "registration_id": registration.id,
+            "student_id": registration.student_id,
+            "student_name": student.name if student else "Unknown Student",
+            "student_email": student.email if student else "",
+            "status": registration.status,
+            "registered_at": registration.registered_at,
+        })
+
+    return Response({
+        "event": event_data(event),
+        "registrations": registration_list,
     })

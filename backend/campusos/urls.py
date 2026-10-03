@@ -15,9 +15,14 @@ urlpatterns = [
     path("auth/login", auth_views.login),
     path("auth/profile", auth_views.profile),
 
-    # Administrator
-    path("stats/platform", admin_views.platform_stats),
-    path("users", admin_views.list_users),
+   # Administrator
+   path("stats/platform", admin_views.platform_stats),
+   path("users", admin_views.list_users),
+   path("users/create", admin_views.create_user),
+   path(
+    "users/<int:user_id>/reset-password",
+    admin_views.reset_user_password,
+),
 
     # Clubs
     path("clubs", club_views.club_list),
@@ -43,6 +48,13 @@ urlpatterns = [
     path("events/<int:event_id>/register", student_views.register_for_event),
     path("events/<int:event_id>", event_views.event_detail),
     path("my-events", event_views.my_events),
+    path("events/<int:event_id>/attendance", event_views.list_attendance),
+    path("events/<int:event_id>/attendance/mark", event_views.mark_attendance),
+
+    path(
+    "events/<int:event_id>/registrations",
+    event_views.list_event_registrations
+),
 
     # Student registrations and participation
     path("my-registrations", student_views.my_registrations),

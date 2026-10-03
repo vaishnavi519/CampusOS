@@ -43,3 +43,9 @@ export async function registerForEvent(eventId) {
     api.post(`/events/${eventId}/register`)
   );
 }
+
+export async function listEventRegistrations(eventId) {
+  return request(() =>
+    api.get(`/events/${eventId}/registrations`)
+  );
+}

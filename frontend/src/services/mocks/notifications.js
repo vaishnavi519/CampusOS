@@ -1,6 +1,5 @@
 import api from "../api.js";
-import { ApiError } from "../errors.js";
-import { requireUser } from "./session.js";
+import { ApiError } from "../errors.js"
 import { nextId } from "./store.js";
 
 // Handle API errors

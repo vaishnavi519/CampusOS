@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -8,8 +9,7 @@ import { Icon } from '../../components/ui/Icon.jsx';
 import { Alert } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useForm } from '../../hooks/index.js';
-import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '../../services/mocks/seed.js';
-import { ROLE_HOME, ROLE_LABELS } from '../../utils/constants.js';
+import { ROLE_HOME } from '../../utils/constants.js';
 import { email as emailRule, required } from '../../utils/validation.js';
 
 export function LoginPage() {
@@ -29,19 +29,15 @@ export function LoginPage() {
         email: values.email.trim(),
         password: values.password,
       });
+
       const destination =
         location.state?.from?.pathname ?? ROLE_HOME[profile.role] ?? '/app';
+
       navigate(destination, { replace: true });
     },
   });
 
   const error = form.submitError;
-
-  /** One click to fill a demo account rather than retyping it. */
-  const useAccount = (account) => {
-    form.setValues({ email: account.email, password: DEMO_PASSWORD });
-    form.setSubmitError(null);
-  };
 
   return (
     <AuthLayout
@@ -59,10 +55,7 @@ export function LoginPage() {
     >
       <form className="stack" onSubmit={form.handleSubmit} noValidate>
         {error ? (
-          <Alert
-            tone="danger"
-            title="Sign-in failed"
-          >
+          <Alert tone="danger" title="Sign-in failed">
             {error.message}
           </Alert>
         ) : null}
@@ -122,44 +115,6 @@ export function LoginPage() {
           {form.submitting ? 'Signing in' : 'Sign in'}
         </Button>
       </form>
-
-      <DemoAccounts onSelect={useAccount} />
     </AuthLayout>
-  );
-}
-
-/** Quick access to the seeded local accounts. */
-function DemoAccounts({ onSelect }) {
-  return (
-    <section style={{ marginTop: 'var(--sp-6)' }}>
-      <div
-        className="row"
-        style={{ marginBottom: 'var(--sp-2)', color: 'var(--c-text-muted)' }}
-      >
-        <Icon name="database" size={14} />
-        <span style={{ fontSize: 'var(--fs-12)' }}>
-          Demo accounts — password <code>{DEMO_PASSWORD}</code>
-        </span>
-      </div>
-
-      <div className="panel panel--flush">
-        {DEMO_ACCOUNTS.map((account) => (
-          <button
-            key={account.email}
-            type="button"
-            className="demo-account"
-            onClick={() => onSelect(account)}
-          >
-            <span className="demo-account__text">
-              <span className="demo-account__role">
-                {ROLE_LABELS[account.role]}
-              </span>
-              <span className="demo-account__email">{account.email}</span>
-            </span>
-            <Icon name="arrow-right" size={15} className="text-muted" />
-          </button>
-        ))}
-      </div>
-    </section>
   );
 }

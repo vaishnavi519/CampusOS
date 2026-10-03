@@ -12,7 +12,7 @@ async function request(callback) {
     throw new ApiError(
       data?.message ||
       data?.detail ||
-      "Unable to load accounts.",
+      "Unable to complete the account request.",
       { status }
     );
   }
@@ -20,4 +20,14 @@ async function request(callback) {
 
 export async function listUsers() {
   return request(() => api.get("/users"));
+}
+
+export async function createUser(payload) {
+  return request(() => api.post("/users/create", payload));
+}
+
+export async function resetUserPassword(userId, payload) {
+  return request(() =>
+    api.patch(`/users/${userId}/reset-password`, payload)
+  );
 }

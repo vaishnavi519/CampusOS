@@ -1,29 +1,10 @@
-# Python
 __pycache__/
 *.py[cod]
+*.pyc
 venv/
-env/
 .venv/
-
-# Django
-*.log
-db.sqlite3
-staticfiles/
-
-# Environment variables and secrets
+node_modules/
+dist/
 .env
 .env.*
 !.env.example
-
-# React / Node
-node_modules/
-dist/
-build/
-
-# IDE
-.vscode/
-.idea/
-
-# Operating system
-.DS_Store
-Thumbs.db

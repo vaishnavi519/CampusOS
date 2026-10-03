@@ -20,7 +20,7 @@ import { formatTime, orPlaceholder } from '../../utils/format.js';
 export function FacultyDashboardPage() {
   const { user } = useAuth();
 
-  const pending = useAsync(() => eventService.listPendingEvents(), []);
+  const pending = useAsync(() => eventService.listPublishedEvents(), []);
   const notifications = useAsync(
     () => notificationService.listNotifications(),
     [],

@@ -2,10 +2,17 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
 
-// Register
+// ============================================================
+// STUDENT SELF-REGISTRATION
+// ============================================================
+// Normal registration is ONLY for students.
+// Club Admin, Faculty Coordinator and System Admin accounts
+// must be created by a System Admin.
+// ============================================================
+
 const register = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password } = req.body;
 
         // Basic validation
         if (!name || !email || !password) {
@@ -31,26 +38,22 @@ const register = async (req, res) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Privileged roles are assigned administratively, never by registration.
-        const userRole = ["STUDENT", "CLUB_ADMIN"].includes(role)
-            ? role
-            : "STUDENT";
-
-        // Create user
+        // Public registration ALWAYS creates a STUDENT.
+        // Privileged roles are created by SYSTEM_ADMIN.
         const [result] = await db.query(
             `INSERT INTO users (name, email, password, role)
-             VALUES (?, ?, ?, ?)`,
-            [name, email, hashedPassword, userRole]
+             VALUES (?, ?, ?, 'STUDENT')`,
+            [name, email, hashedPassword]
         );
 
         res.status(201).json({
             success: true,
-            message: "User registered successfully",
+            message: "Student account registered successfully",
             user: {
                 id: result.insertId,
                 name,
                 email,
-                role: userRole
+                role: "STUDENT"
             }
         });
 
@@ -65,7 +68,10 @@ const register = async (req, res) => {
 };
 
 
-// Login
+// ============================================================
+// LOGIN
+// ============================================================
+
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -138,6 +144,11 @@ const login = async (req, res) => {
         });
     }
 };
+
+
+// ============================================================
+// GET CURRENT USER PROFILE
+// ============================================================
 
 const getProfile = async (req, res) => {
     try {

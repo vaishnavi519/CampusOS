@@ -13,12 +13,8 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useAsync } from '../../hooks/index.js';
 import { authService } from '../../services/index.js';
 import { ROLE_LABELS } from '../../utils/constants.js';
-import { formatDate, initials, orPlaceholder } from '../../utils/format.js';
+import { initials, orPlaceholder } from '../../utils/format.js';
 
-/**
- * Shows exactly what the backend stores about the account — id, name, email,
- * role and creation date. Nothing else is invented to fill the page.
- */
 export function ProfilePage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -56,11 +52,16 @@ export function ProfilePage() {
                 <span className="avatar avatar--lg" aria-hidden="true">
                   {initials(record?.name)}
                 </span>
+
                 <div style={{ minWidth: 0 }}>
                   <h2 className="profile-head__name">
                     {orPlaceholder(record?.name)}
                   </h2>
-                  <p className="text-muted" style={{ fontSize: 'var(--fs-14)' }}>
+
+                  <p
+                    className="text-muted"
+                    style={{ fontSize: 'var(--fs-14)' }}
+                  >
                     {orPlaceholder(record?.email)}
                   </p>
                 </div>
@@ -72,30 +73,16 @@ export function ProfilePage() {
                     term: 'Role',
                     value: (
                       <Badge tone="accent">
-                        {ROLE_LABELS[record?.role] ?? orPlaceholder(record?.role)}
+                        {ROLE_LABELS[record?.role] ??
+                          orPlaceholder(record?.role)}
                       </Badge>
                     ),
-                  },
-                  {
-                    term: 'Account number',
-                    value: (
-                      <span className="num">
-                        {orPlaceholder(record?.id)}
-                      </span>
-                    ),
-                  },
-                  {
-                    term: 'Member since',
-                    value: record?.created_at
-                      ? formatDate(record.created_at)
-                      : 'Not specified',
                   },
                 ]}
               />
             </AsyncSection>
           </PanelBody>
         </Panel>
-
       </div>
     </>
   );

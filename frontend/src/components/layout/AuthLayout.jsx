@@ -1,8 +1,7 @@
 import { Brand } from './Brand.jsx';
 
 /**
- * Two-pane auth frame matching the reference composition: a form panel and a
- * large campus image panel with overlaid copy.
+ * Two-pane authentication layout with a clean image panel.
  */
 export function AuthLayout({ title, subtitle, children, footer }) {
   return (
@@ -10,24 +9,23 @@ export function AuthLayout({ title, subtitle, children, footer }) {
       <section className="auth__panel">
         <div className="auth__panel-inner">
           <Brand to="/" className="auth__brand" />
+
           <h2 className="auth__title">{title}</h2>
+
           <p className="auth__subtitle">{subtitle}</p>
+
           {children}
-          {footer ? <p className="auth__switch">{footer}</p> : null}
+
+          {footer ? (
+            <p className="auth__switch">{footer}</p>
+          ) : null}
         </div>
       </section>
 
-      <aside className="auth__visual" aria-label="Campus feature imagery">
-        <div className="auth__visual-tag">Campus network</div>
-
-        <div className="auth__visual-copy">
-          <h3>A more connected campus.</h3>
-          <p>
-            Empowering student communities, collaborative spaces, and university
-            life across departments.
-          </p>
-        </div>
-      </aside>
+      <aside
+        className="auth__visual"
+        aria-label="Campus imagery"
+      />
     </div>
   );
 }

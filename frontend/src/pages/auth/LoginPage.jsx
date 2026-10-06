@@ -18,11 +18,16 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
-    initialValues: { email: '', password: '' },
+    initialValues: {
+      email: '',
+      password: '',
+    },
+
     schema: {
       email: emailRule,
       password: required('Password'),
     },
+
     onSubmit: async (values) => {
       const profile = await signIn({
         email: values.email.trim(),
@@ -44,7 +49,6 @@ export function LoginPage() {
     <AuthLayout
       title="Welcome back"
       subtitle="Sign in to your account."
-      caption="A more connected campus."
       footer={
         <>
           Do not have an account?{' '}
@@ -54,7 +58,11 @@ export function LoginPage() {
         </>
       }
     >
-      <form className="stack" onSubmit={form.handleSubmit} noValidate>
+      <form
+        className="stack"
+        onSubmit={form.handleSubmit}
+        noValidate
+      >
         {error ? (
           <Alert tone="danger" title="Sign-in failed">
             {error.message}
@@ -102,9 +110,13 @@ export function LoginPage() {
               <button
                 type="button"
                 className="input-group__action"
-                onClick={() => setShowPassword((value) => !value)}
+                onClick={() =>
+                  setShowPassword((value) => !value)
+                }
                 aria-label={
-                  showPassword ? 'Hide password' : 'Show password'
+                  showPassword
+                    ? 'Hide password'
+                    : 'Show password'
                 }
               >
                 <Icon name="eye" size={15} />

@@ -49,8 +49,6 @@ Depending on the modules implemented in the current version, CampusOS can includ
 * 🖥️ **Web-Based Interface**
   Access the system through a browser without requiring a separate desktop application.
 
-> **Note:** Update this section if your implemented modules have different names or functionality.
-
 ---
 
 ## 🛠️ Technologies Used
@@ -68,8 +66,8 @@ Depending on the modules implemented in the current version, CampusOS can includ
 
 ### Database
 
-* SQLite / MySQL
-  *(Use the database that your current project actually uses.)*
+* MySQL
+  
 
 ### Development Tools
 
@@ -100,9 +98,6 @@ CampusOS/
 └── ...
 ```
 
-The exact structure may vary depending on the modules implemented in the project.
-
----
 
 ## ⚙️ Installation and Setup
 
@@ -152,7 +147,6 @@ source venv/bin/activate
 
 ### 3. Install Dependencies
 
-If your project contains a `requirements.txt` file:
 
 ```bash
 pip install -r requirements.txt
@@ -205,21 +199,6 @@ DATABASE_URL=your_database_url
 
 ---
 
-## 🧪 Testing
-
-Before submitting or deploying the project, test the major application modules, including:
-
-* User registration/login
-* User authentication
-* Database operations
-* Form submission
-* CRUD operations
-* Navigation between pages
-* Error handling
-
-Testing should be performed using the actual modules implemented in the current version of CampusOS.
-
----
 
 ## 🚀 Future Enhancements
 

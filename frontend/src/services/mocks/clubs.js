@@ -1,8 +1,11 @@
+
 import api from '../api.js';
 import { ApiError } from '../errors.js';
 
 function handleError(error) {
-  if (error instanceof ApiError) throw error;
+  if (error instanceof ApiError) {
+    throw error;
+  }
 
   const status = error.response?.status;
   const data = error.response?.data;
@@ -24,25 +27,22 @@ async function request(callback) {
   }
 }
 
-// Get clubs
 export async function listClubs() {
   return request(() => api.get('/clubs'));
 }
 
-// Get one club
 export async function getClub(id) {
   return request(() => api.get(`/clubs/${id}`));
 }
 
-// Apply for club membership
 export async function joinClub(id) {
-  return request(() => api.post(`/clubs/${id}/apply`));
+  const data = await request(() => api.post(`/clubs/${id}/apply`));
+  return data.membership;
 }
 
-// Get memberships of logged-in student
 export async function listMyMemberships() {
   const memberships = await request(() => api.get('/memberships/my'));
-  const clubs = await request(() => api.get('/clubs'));
+  const clubs = await listClubs();
 
   return memberships.map((membership) => {
     const club = clubs.find(
@@ -64,10 +64,9 @@ export async function listMyMemberships() {
   });
 }
 
-// Get membership applications for a club
 export async function listClubMembers(id) {
   const [club, memberships] = await Promise.all([
-    request(() => api.get(`/clubs/${id}`)),
+    getClub(id),
     request(() => api.get(`/clubs/${id}/memberships`)),
   ]);
 
@@ -77,10 +76,10 @@ export async function listClubMembers(id) {
       name: club.name,
     },
     members: memberships.map((membership) => ({
-      membership_id: membership.id,
+      membership_id: membership.membership_id ?? membership.id,
       student_id: membership.student_id,
-      student_name: 'Student',
-      student_email: '',
+      student_name: membership.student_name || 'Unknown student',
+      student_email: membership.student_email || '',
       status: membership.status,
       applied_at: membership.applied_at,
       reviewed_at: membership.reviewed_at,
@@ -88,25 +87,44 @@ export async function listClubMembers(id) {
   };
 }
 
-// Create a club
 export async function createClub(payload) {
+  if (!payload.faculty_coordinator_id) {
+    throw new ApiError('Please select a faculty coordinator.', {
+      status: 400,
+    });
+  }
+
   const data = await request(() =>
     api.post('/clubs/create', {
       name: payload.name,
       description: payload.description || '',
       category: payload.category,
-      faculty_coordinator_id: Number(payload.faculty_coordinator_id),
+      faculty_coordinator_id: Number(
+        payload.faculty_coordinator_id,
+      ),
     }),
   );
 
   return data.club;
 }
 
-// Approve or reject a membership request
 export async function reviewMembership(membershipId, decision) {
-  const status = decision.toUpperCase() === 'APPROVE'
-    ? 'APPROVED'
-    : 'REJECTED';
+  const normalizedDecision = decision.toUpperCase();
+
+  const status =
+    normalizedDecision === 'APPROVE' ||
+    normalizedDecision === 'APPROVED'
+      ? 'APPROVED'
+      : normalizedDecision === 'REJECT' ||
+          normalizedDecision === 'REJECTED'
+        ? 'REJECTED'
+        : null;
+
+  if (!status) {
+    throw new ApiError('Invalid membership review decision.', {
+      status: 400,
+    });
+  }
 
   const data = await request(() =>
     api.patch(`/memberships/${membershipId}/review`, { status }),
@@ -115,7 +133,6 @@ export async function reviewMembership(membershipId, decision) {
   return data.membership;
 }
 
-// Get clubs managed by the logged-in club administrator
 export async function listAdminClubs() {
   const clubs = await listClubs();
 
@@ -138,10 +155,22 @@ export async function listAdminClubs() {
   );
 }
 
-// This endpoint must be added to Django before coordinators can be loaded.
 export async function listCoordinators() {
-  throw new ApiError(
-    'Faculty coordinator listing is not yet available in the Django backend.',
-    { status: 501 },
+  return request(() => api.get('/clubs/coordinators'));
+}
+
+export async function reviewClub(clubId, decision) {
+  const normalizedDecision = decision.toUpperCase();
+
+  if (!['APPROVED', 'REJECTED'].includes(normalizedDecision)) {
+    throw new ApiError('Invalid club approval decision.', {
+      status: 400,
+    });
+  }
+
+  return request(() =>
+    api.patch(`/clubs/${clubId}/approval`, {
+      status: normalizedDecision,
+    }),
   );
 }

@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 
 import { DateChip } from '../../components/events/EventRecord.jsx';
@@ -13,10 +14,12 @@ import {
 } from '../../components/ui/States.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useAsync } from '../../hooks/index.js';
-import { eventService, notificationService } from '../../services/index.js';
+import {
+  eventService,
+  notificationService,
+} from '../../services/index.js';
 import { formatTime, orPlaceholder } from '../../utils/format.js';
 
-/** The faculty coordinator's queue: events submitted and waiting on a decision. */
 export function FacultyDashboardPage() {
   const { user } = useAuth();
 
@@ -27,31 +30,43 @@ export function FacultyDashboardPage() {
   );
 
   const rows = pending.data ?? [];
-  const unread = (notifications.data ?? []).filter((row) => !row.read).length;
-
-  const firstName = user?.name?.split(' ').slice(-1)[0] ?? 'there';
+  const unread = (notifications.data ?? []).filter(
+    (row) => !row.read,
+  ).length;
 
   return (
     <>
       <PageHeader
-        title={`Welcome, ${user?.name ?? firstName}`}
-        description="Event proposals from the clubs you coordinate, waiting on your decision."
+        title={`Welcome, ${user?.name ?? 'there'}`}
+        description="Review pending club approvals and event proposals from the clubs you coordinate."
         actions={
-          rows.length > 0 ? (
-            <Button to="/faculty/pending" variant="primary" icon="review">
-              Review queue
+          <div className="row-wrap">
+            <Button
+              to="/faculty/pending-clubs"
+              variant="secondary"
+            >
+              Pending clubs
             </Button>
-          ) : null
+
+            <Button
+              to="/faculty/pending"
+              variant="primary"
+              icon="review"
+            >
+              Review events
+            </Button>
+          </div>
         }
       />
 
       <div className="metric-row">
         <Metric
           value={rows.length}
-          label="Awaiting your approval"
+          label="Events awaiting your approval"
           loading={pending.loading}
           unavailable={Boolean(pending.error)}
         />
+
         <Metric
           value={unread}
           label="Unread notifications"
@@ -64,13 +79,12 @@ export function FacultyDashboardPage() {
         <PanelHeader
           title="Pending events"
           action={
-            rows.length > 0 ? (
-              <Link className="section-head__link" to="/faculty/pending">
-                View all
-              </Link>
-            ) : null
+            <Link className="section-head__link" to="/faculty/pending">
+              View all
+            </Link>
           }
         />
+
         <AsyncSection
           loading={pending.loading}
           error={pending.error}
@@ -80,8 +94,8 @@ export function FacultyDashboardPage() {
           empty={
             <EmptyState
               icon="check-circle"
-              title="Nothing needs your approval"
-              description="When a club submits an event you will find it here with its full proposal."
+              title="Nothing needs your event approval"
+              description="When a club submits an event, its proposal will appear here."
             />
           }
         >
@@ -96,12 +110,15 @@ export function FacultyDashboardPage() {
 
                 <div className="record__body">
                   <p className="record__title">{event.title}</p>
+
                   <p className="record__meta">
                     <span>{orPlaceholder(event.club_name)}</span>
+
                     <span className="record__meta-sep row" style={{ gap: 5 }}>
                       <Icon name="clock" size={13} />
                       {formatTime(event.event_time)}
                     </span>
+
                     <span className="record__meta-sep row" style={{ gap: 5 }}>
                       <Icon name="pin" size={13} />
                       {orPlaceholder(event.venue)}
@@ -110,7 +127,11 @@ export function FacultyDashboardPage() {
                 </div>
 
                 <div className="record__aside">
-                  <Icon name="chevron-right" size={16} className="text-muted" />
+                  <Icon
+                    name="chevron-right"
+                    size={16}
+                    className="text-muted"
+                  />
                 </div>
               </Link>
             ))}

@@ -1,0 +1,261 @@
+
+.pending-clubs-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px;
+  color: #1d1d1b;
+}
+
+.pending-clubs-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.pending-clubs-eyebrow {
+  margin: 0 0 10px;
+  color: #8b4938;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+}
+
+.pending-clubs-header h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+
+.pending-clubs-intro {
+  margin: 10px 0 0;
+  color: #62615d;
+  line-height: 1.6;
+}
+
+.pending-clubs-refresh {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border: 1px solid #e5e4df;
+  border-radius: 8px;
+  background: #fff;
+  color: #1d1d1b;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pending-clubs-refresh:hover:not(:disabled) {
+  background: #f7f7f5;
+}
+
+.pending-clubs-refresh:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.pending-clubs-notice {
+  margin-bottom: 20px;
+  padding: 13px 16px;
+  border: 1px solid #e5e4df;
+  border-radius: 8px;
+  background: #fff;
+  line-height: 1.5;
+}
+
+.pending-clubs-notice--success {
+  border-color: #c9dfcf;
+  color: #285b38;
+}
+
+.pending-clubs-notice--error {
+  border-color: #e5c9c3;
+  color: #8b3025;
+}
+
+.pending-clubs-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.pending-clubs-toolbar h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 650;
+}
+
+.pending-clubs-toolbar p {
+  margin: 5px 0 0;
+  color: #62615d;
+  font-size: 14px;
+}
+
+.pending-clubs-search {
+  width: min(100%, 300px);
+  padding: 11px 13px;
+  border: 1px solid #e5e4df;
+  border-radius: 8px;
+  outline: none;
+  background: #fff;
+  color: #1d1d1b;
+  font: inherit;
+}
+
+.pending-clubs-search:focus {
+  border-color: #8b4938;
+  box-shadow: 0 0 0 3px #f4ebe7;
+}
+
+.pending-clubs-empty {
+  padding: 48px 24px;
+  border: 1px solid #e5e4df;
+  border-radius: 10px;
+  background: #fff;
+  text-align: center;
+}
+
+.pending-clubs-empty h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.pending-clubs-empty p {
+  margin: 0;
+  color: #62615d;
+  line-height: 1.6;
+}
+
+.pending-clubs-list {
+  display: grid;
+  gap: 14px;
+}
+
+.pending-club-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px;
+  border: 1px solid #e5e4df;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.pending-club-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.pending-club-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.pending-club-title-row h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.pending-club-status {
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: #f4ebe7;
+  color: #8b4938;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pending-club-category {
+  margin: 8px 0;
+  color: #62615d;
+  font-size: 13px;
+}
+
+.pending-club-description {
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.pending-club-reference {
+  margin: 12px 0 0;
+  color: #77756f;
+  font-size: 12px;
+}
+
+.pending-club-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.pending-club-button {
+  padding: 10px 14px;
+  border: 1px solid #e5e4df;
+  border-radius: 7px;
+  background: #fff;
+  color: #1d1d1b;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pending-club-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.pending-club-button--approve {
+  border-color: #8b4938;
+  background: #8b4938;
+  color: #fff;
+}
+
+.pending-club-button--approve:hover:not(:disabled) {
+  background: #713a2d;
+}
+
+.pending-club-button--reject:hover:not(:disabled) {
+  border-color: #b66a5d;
+  color: #8b3025;
+}
+
+@media (max-width: 700px) {
+  .pending-clubs-page {
+    padding: 20px 16px;
+  }
+
+  .pending-clubs-header,
+  .pending-clubs-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pending-clubs-refresh,
+  .pending-clubs-search {
+    width: 100%;
+  }
+
+  .pending-club-card {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .pending-club-actions {
+    width: 100%;
+  }
+
+  .pending-club-button {
+    flex: 1;
+  }
+}

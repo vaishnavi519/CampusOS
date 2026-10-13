@@ -1,3 +1,4 @@
+
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from './components/layout/AppLayout.jsx';
@@ -33,6 +34,7 @@ import { ManageClubsPage } from './pages/clubadmin/ManageClubsPage.jsx';
 import { ManageEventsPage } from './pages/clubadmin/ManageEventsPage.jsx';
 
 import { FacultyDashboardPage } from './pages/faculty/FacultyDashboardPage.jsx';
+import { PendingClubsPage } from './pages/faculty/PendingClubsPage.jsx';
 import { PendingEventDetailsPage } from './pages/faculty/PendingEventDetailsPage.jsx';
 import { PendingEventsPage } from './pages/faculty/PendingEventsPage.jsx';
 
@@ -43,13 +45,6 @@ import { UserManagementPage } from './pages/admin/UserManagementPage.jsx';
 
 import { ROLES } from './utils/constants.js';
 
-/**
- * Routes.
- *
- * Club and event browsing, notifications and profile are open to any signed-in
- * user — the underlying endpoints are public or user-scoped. Everything else
- * sits under the route prefix its role owns, matching ROLE_HOME.
- */
 export default function App() {
   return (
     <Routes>
@@ -74,7 +69,7 @@ export default function App() {
 
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
-          {/* Open to every signed-in role */}
+          {/* Available to every signed-in role */}
           <Route path="/app/clubs" element={<BrowseClubsPage />} />
           <Route path="/app/clubs/:clubId" element={<ClubDetailsPage />} />
           <Route path="/app/events" element={<BrowseEventsPage />} />
@@ -88,10 +83,7 @@ export default function App() {
             <Route path="/app" element={<StudentDashboardPage />} />
             <Route path="/app/my-clubs" element={<MyClubsPage />} />
             <Route path="/app/registrations" element={<MyRegistrationsPage />} />
-            <Route
-              path="/app/recommendations"
-              element={<RecommendationsPage />}
-            />
+            <Route path="/app/recommendations" element={<RecommendationsPage />} />
             <Route path="/app/participation" element={<ParticipationPage />} />
           </Route>
 
@@ -118,6 +110,10 @@ export default function App() {
               path="/faculty/pending/:eventId"
               element={<PendingEventDetailsPage />}
             />
+            <Route
+              path="/faculty/pending-clubs"
+              element={<PendingClubsPage />}
+            />
           </Route>
 
           {/* System administrator */}
@@ -130,9 +126,7 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Legacy/alias paths */}
       <Route path="/dashboard" element={<Navigate to="/app" replace />} />
-
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

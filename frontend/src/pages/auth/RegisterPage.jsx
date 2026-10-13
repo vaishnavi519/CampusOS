@@ -17,20 +17,6 @@ import {
   required,
 } from '../../utils/validation.js';
 
-/**
- * Self-service registration.
- *
- * The backend accepts any of the four roles here, but faculty and registrar
- * accounts are institutional, so only the two self-service roles are offered.
- */
-const SELECTABLE_ROLES = [
-  {
-    value: ROLES.STUDENT,
-    title: 'Student',
-    description: 'Join clubs and register for events.',
-  },
-];
-
 export function RegisterPage() {
   const { registerAndSignIn } = useAuth();
   const toast = useToast();
@@ -59,14 +45,16 @@ export function RegisterPage() {
         name: values.name.trim(),
         email: values.email.trim(),
         password: values.password,
-        role: values.role,
+        role: ROLES.STUDENT,
       });
+
       toast.success(`Welcome to CampusOS, ${profile.name.split(' ')[0]}.`);
       navigate(ROLE_HOME[profile.role] ?? '/app', { replace: true });
     },
   });
 
   const error = form.submitError;
+
   const bind = (name) => {
     const { error: fieldError, ...props } = form.field(name);
     return { props, error: fieldError };
@@ -103,7 +91,10 @@ export function RegisterPage() {
           >
             {error.status === 409 ? (
               <>
-                Try <Link to="/login" className="btn btn--link">signing in</Link>{' '}
+                Try{' '}
+                <Link to="/login" className="btn btn--link">
+                  signing in
+                </Link>{' '}
                 instead.
               </>
             ) : (
@@ -151,6 +142,7 @@ export function RegisterPage() {
                 autoComplete="new-password"
                 style={{ paddingRight: 38 }}
               />
+
               <button
                 type="button"
                 className="input-group__action"
@@ -177,38 +169,6 @@ export function RegisterPage() {
             />
           )}
         </Field>
-
-        <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-          <legend className="field__label" style={{ padding: 0, marginBottom: 6 }}>
-            I am registering as
-          </legend>
-          <div className="choice-list">
-            {SELECTABLE_ROLES.map((role) => (
-              <label className="choice" key={role.value}>
-                <input
-                  type="radio"
-                  name="role"
-                  value={role.value}
-                  checked={form.values.role === role.value}
-                  onChange={form.handleChange}
-                />
-                <span>
-                  <span className="choice__title">{role.title}</span>
-                  <span
-                    className="choice__desc"
-                    style={{ display: 'block' }}
-                  >
-                    {role.description}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
-          <p className="field__hint" style={{ marginTop: 8 }}>
-            Faculty coordinator and registrar accounts are issued by the
-            institution, not self-registered.
-          </p>
-        </fieldset>
 
         <Button
           type="submit"

@@ -2,6 +2,9 @@
 import bcrypt
 
 from django.db import IntegrityError
+from django.db.models import Count
+from django.utils import timezone
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -30,14 +33,99 @@ def platform_stats(request):
             status=status.HTTP_403_FORBIDDEN,
         )
 
+    today = timezone.localdate()
+
+    # Existing statistics: keep these keys for compatibility.
+    total_users = Users.objects.count()
+    total_clubs = Clubs.objects.count()
+    total_events = Events.objects.count()
+    total_registrations = EventRegistrations.objects.exclude(
+        status="CANCELLED"
+    ).count()
+    total_attendance = Attendance.objects.count()
+
+    # Real database counts.
+    total_students = Users.objects.filter(role="STUDENT").count()
+    total_club_admins = Users.objects.filter(role="CLUB_ADMIN").count()
+    total_faculty = Users.objects.filter(
+        role="FACULTY_COORDINATOR"
+    ).count()
+    total_system_admins = Users.objects.filter(
+        role="SYSTEM_ADMIN"
+    ).count()
+
+    pending_membership_requests = ClubMemberships.objects.filter(
+        status="PENDING"
+    ).count()
+
+    approved_memberships = ClubMemberships.objects.filter(
+        status="APPROVED"
+    ).count()
+
+    upcoming_events = Events.objects.filter(
+        event_date__gte=today
+    ).count()
+
+    # Group records by their actual stored status values.
+    event_statuses = list(
+        Events.objects.values("status")
+        .annotate(count=Count("id"))
+        .order_by("status")
+    )
+
+    membership_statuses = list(
+        ClubMemberships.objects.values("status")
+        .annotate(count=Count("id"))
+        .order_by("status")
+    )
+
+    registration_statuses = list(
+        EventRegistrations.objects.values("status")
+        .annotate(count=Count("id"))
+        .order_by("status")
+    )
+
+    # Recent events are read-only and include the related club name.
+    recent_events = list(
+        Events.objects.select_related("club")
+        .order_by("-created_at", "-id")
+        .values(
+            "id",
+            "title",
+            "event_date",
+            "status",
+            "club__name",
+        )[:5]
+    )
+
+    for event in recent_events:
+        event["event_date"] = (
+            event["event_date"].isoformat()
+            if event["event_date"]
+            else None
+        )
+        event["club_name"] = event.pop("club__name")
+
     return Response({
-        "total_users": Users.objects.count(),
-        "total_clubs": Clubs.objects.count(),
-        "total_events": Events.objects.count(),
-        "total_registrations": EventRegistrations.objects.exclude(
-            status="CANCELLED"
-        ).count(),
-        "total_attendance": Attendance.objects.count(),
+        # Existing response fields.
+        "total_users": total_users,
+        "total_clubs": total_clubs,
+        "total_events": total_events,
+        "total_registrations": total_registrations,
+        "total_attendance": total_attendance,
+
+        # New dashboard analytics.
+        "total_students": total_students,
+        "total_club_admins": total_club_admins,
+        "total_faculty_coordinators": total_faculty,
+        "total_system_admins": total_system_admins,
+        "pending_membership_requests": pending_membership_requests,
+        "approved_memberships": approved_memberships,
+        "upcoming_events": upcoming_events,
+        "event_statuses": event_statuses,
+        "membership_statuses": membership_statuses,
+        "registration_statuses": registration_statuses,
+        "recent_events": recent_events,
     })
 
 

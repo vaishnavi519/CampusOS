@@ -1,53 +1,55 @@
 
 # CampusOS
 
-> A centralized campus management platform designed to simplify and organize common academic and campus-related activities.
+> A centralized campus club and event management platform designed to organize club activities, event registrations, memberships, and attendance.
 
 ## 📌 Overview
 
-**CampusOS** is a web-based campus management system developed to bring different campus-related activities into one platform.
+**CampusOS** is a web-based campus club and event management system developed to bring important campus activities into one platform.
 
-The goal of the project is to reduce the need for multiple disconnected systems and provide students and other campus users with a simple way to access and manage important information and services.
+It supports workflows related to users, clubs, events, club memberships, event registrations, attendance, and notifications.
 
-The project is developed as part of our engineering coursework to apply concepts of **web development, database management, backend development, and software engineering** in a practical application.
+The project was developed as part of engineering coursework to apply practical concepts in **frontend development, backend development, REST APIs, database management, and software testing**.
 
 ---
 
 ## 🎯 Objectives
 
-* Provide a centralized platform for campus-related activities.
-* Make campus information easier to access and manage.
-* Reduce manual work involved in managing student-related information.
-* Provide a simple and user-friendly interface.
-* Store and manage application data systematically.
-* Apply practical software development concepts in a real-world style project.
+* Provide a centralized platform for campus clubs and events.
+* Organize club membership and event registration workflows.
+* Support event submission and approval activities.
+* Maintain records of event registrations and attendance.
+* Provide functionality for different user roles.
+* Store application data in a structured relational database.
+* Apply software engineering and browser automation concepts.
 
 ---
 
 ## ✨ Features
 
-Depending on the modules implemented in the current version, CampusOS can include features such as:
+* 👤 **User Management and Authentication**
+  Supports user registration, login, profile access, and roles such as Student, Club Admin, Faculty Coordinator, and System Admin.
 
-* 👤 **User Management**
-  Manage user accounts and basic user information.
+* 🎓 **Club Management**
+  Supports club listing and management, coordinator-related functionality, and membership applications and review workflows.
 
-* 🎓 **Student Management**
-  Store and manage student-related information.
+* 📅 **Event Management**
+  Supports event listing, event details, submission, and approval-related workflows.
 
-* 📚 **Academic Information**
-  Organize academic or course-related information.
+* 📝 **Event Registration**
+  Provides functionality for students to register for events and access registration-related information.
 
-* 📅 **Campus Activities**
-  Manage information related to campus activities and events.
+* ✅ **Attendance Management**
+  Maintains event attendance records and includes attendance-marking functionality.
 
-* 🗄️ **Database Management**
-  Store application data in a structured database.
+* 🔔 **Notifications**
+  Includes notification listing, unread counts, and read-status functionality.
 
-* 🔐 **Authentication**
-  Provide controlled access to different parts of the application.
+* 📊 **Administration**
+  Includes platform statistics and user-management routes.
 
-* 🖥️ **Web-Based Interface**
-  Access the system through a browser without requiring a separate desktop application.
+* 📈 **Student Participation**
+  Includes personal registrations, participation reports, and event recommendations.
 
 ---
 
@@ -55,165 +57,215 @@ Depending on the modules implemented in the current version, CampusOS can includ
 
 ### Frontend
 
-* HTML
-* CSS
-* JavaScript
+* **React** – Builds the interactive user interface using reusable components.
+* **Vite** – Runs the frontend development server and builds the application.
+* **Axios** – Sends HTTP requests to the backend API.
+* **HTML, CSS, and JavaScript** – Support the web interface.
 
 ### Backend
 
-* Python
-* Django
+* **Python** – Backend programming language.
+* **Django** – Backend web framework.
+* **Django REST Framework** – Provides the REST API layer.
 
 ### Database
 
-* MySQL
-  
+* **MySQL** – Stores users, clubs, events, memberships, registrations, attendance, notifications, and announcements.
 
-### Development Tools
+### Testing and Development Tools
 
-* Visual Studio Code
-* Git
-* GitHub
+* **Selenium with Python** – Automates browser checks.
+* **Visual Studio Code** – Code editor.
+* **Git** – Version control.
+* **GitHub** – Source code hosting.
 
 ---
 
 ## 🏗️ Project Structure
-
-A simplified structure of the project is:
 
 ```text
 CampusOS/
 │
 ├── backend/
 │   ├── manage.py
-│   ├── ...
-│   └── ...
+│   ├── config/
+│   │   ├── settings.py
+│   │   └── urls.py
+│   └── campusos/
+│       ├── models.py
+│       ├── urls.py
+│       ├── auth_views.py
+│       ├── club_views.py
+│       ├── event_views.py
+│       ├── student_views.py
+│       ├── notification_views.py
+│       └── admin_views.py
 │
 ├── frontend/
-│   ├── ...
+│   ├── src/
+│   │   ├── App.jsx
+│   │   └── services/
+│   ├── .env
 │   └── ...
 │
+├── test_login.py
+├── test_campusos.py
 ├── .gitignore
-├── README.md
-└── ...
+└── README.md
 ```
 
+---
+
+## 🏗️ Application Architecture
+
+CampusOS uses a separate frontend, backend, and database.
+
+1. **React frontend:** Displays pages, forms, and interactive components.
+2. **API communication:** Axios sends HTTP requests to Django REST Framework.
+3. **Django backend:** Processes requests and implements backend operations.
+4. **MySQL database:** Stores and retrieves application records.
+
+Local development URLs:
+
+* Frontend: `http://localhost:5173/`
+* Backend: `http://127.0.0.1:8000/`
+* API base URL: `http://127.0.0.1:8000/api`
+
+The frontend communicates with MySQL through the backend API rather than connecting directly to the database.
+
+---
+
+## 🗄️ Database Overview
+
+The Django models map to these MySQL tables:
+
+* `users` – User information and roles.
+* `clubs` – Club details and assigned users.
+* `events` – Event information and approval-related fields.
+* `club_memberships` – Membership applications and review status.
+* `event_registrations` – Student event registrations.
+* `attendance` – Event attendance records.
+* `notifications` – Notifications for users.
+* `announcements` – Club announcements.
+
+The models define relationships between users, clubs, and events. Memberships, registrations, and attendance records include uniqueness rules for relevant record pairs.
+
+**Database note:** The current Django models use `managed = False`. Django maps these models to existing tables but does not manage their lifecycle through normal migrations. Check the existing database schema before running schema-changing commands.
+
+---
 
 ## ⚙️ Installation and Setup
-
-Follow these steps to run CampusOS locally.
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/vaishnavi519/CampusOS.git
-```
-
-Move into the project directory:
-
-```bash
 cd CampusOS
 ```
 
----
+### 2. Set Up the Backend Environment
 
-### 2. Create a Virtual Environment
-
-Navigate to the backend directory:
-
-```bash
+```powershell
 cd backend
-```
-
-Create a Python virtual environment:
-
-```bash
 python -m venv venv
+.\venv\Scripts\Activate.ps1
 ```
 
-Activate it on Windows:
+If the virtual environment already exists, you can activate it without recreating it.
 
-```bash
-venv\Scripts\activate
+Install backend dependencies if a `requirements.txt` file is available in the backend directory:
+
+```powershell
+python -m pip install -r requirements.txt
 ```
 
-For macOS/Linux:
+### 3. Configure MySQL
 
-```bash
-source venv/bin/activate
-```
+Make sure MySQL is running and the `campus_os` database and required tables are available.
 
----
+Configure the database connection using your local credentials. Do not commit database passwords or secret keys to GitHub.
 
-### 3. Install Dependencies
+Because the current models use `managed = False`, do not assume that creating and applying migrations is necessary or safe for the existing database.
 
+### 4. Run the Django Backend
 
-```bash
-pip install -r requirements.txt
-```
+From the `backend` directory:
 
----
-
-### 4. Configure the Database
-
-Apply the Django migrations:
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
----
-
-### 5. Run the Development Server
-
-Start the Django development server:
-
-```bash
+```powershell
 python manage.py runserver
 ```
 
-The application should then be available at:
+The backend runs at:
 
 ```text
 http://127.0.0.1:8000/
 ```
 
-Open the address in your web browser.
+### 5. Run the React Frontend
 
----
+Open a separate terminal:
 
-## 🔑 Environment Variables
-
-If the project uses environment variables, create a `.env` file in the appropriate directory and add the required configuration.
-
-Example:
-
-```text
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=your_database_url
+```powershell
+cd frontend
+npm install
+npm run dev
 ```
 
-**Do not upload passwords, API keys, secret keys, or other sensitive information to GitHub.**
+The frontend is expected at:
+
+```text
+http://localhost:5173/
+```
+
+The local frontend environment configuration uses:
+
+```text
+VITE_API_URL=http://127.0.0.1:8000/api
+```
+
+Restart the frontend server after changing environment variables.
 
 ---
 
+```
+## 🔐 Security Notes
+
+* Never commit passwords, database credentials, API secrets, or private `.env` values.
+* Use designated test accounts for demonstrations.
+* Avoid displaying private user information or password hashes.
+* Enforce permissions in the backend; hiding frontend buttons is not sufficient access control.
+* Configure secure settings before deploying publicly.
+
+---
 
 ## 🚀 Future Enhancements
 
-Some possible improvements for future versions include:
+* 📱 Further responsive and mobile-friendly improvements.
+* 🧪 More automated tests for authentication, permissions, and complete workflows.
+* 📊 Enhanced analytics and reporting.
+* 🔎 Improved search and filtering.
+* 📧 Reliable email integration.
+* ☁️ Production deployment, monitoring, and security hardening.
+* ♿ Accessibility improvements.
 
-* 📱 Responsive/mobile-friendly interface
-* 🔔 Notification system
-* 📊 Dashboard with useful statistics
-* 🔐 Role-based access control
-* ☁️ Cloud deployment
-* 📧 Email integration
-* 📈 Advanced reporting and analytics
-* 🔎 Improved search and filtering
-* 📱 Progressive Web App support
+---
 
+## 📚 Learning Outcomes
 
+This project provides practical experience with:
 
-If you find this project useful or interesting, consider giving the repository a ⭐ on GitHub.
+* Building interactive interfaces using React.
+* Developing backend functionality using Django and Django REST Framework.
+* Connecting frontend requests to backend APIs.
+* Managing relational data using MySQL.
+* Organizing application functionality into modules.
+* Automating browser checks with Selenium and Python.
+* Managing source code using Git and GitHub.
+
+---
+
+**Project:** CampusOS – Campus Club and Event Management System  
+**Frontend:** React + Vite  
+**Backend:** Python + Django + Django REST Framework  
+**Database:** MySQL  
+**Automation:** Selenium with Python

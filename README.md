@@ -81,41 +81,6 @@ The project was developed as part of engineering coursework to apply practical c
 
 ---
 
-## 🏗️ Project Structure
-
-```text
-CampusOS/
-│
-├── backend/
-│   ├── manage.py
-│   ├── config/
-│   │   ├── settings.py
-│   │   └── urls.py
-│   └── campusos/
-│       ├── models.py
-│       ├── urls.py
-│       ├── auth_views.py
-│       ├── club_views.py
-│       ├── event_views.py
-│       ├── student_views.py
-│       ├── notification_views.py
-│       └── admin_views.py
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   └── services/
-│   ├── .env
-│   └── ...
-│
-├── test_login.py
-├── test_campusos.py
-├── .gitignore
-└── README.md
-```
-
----
-
 ## 🏗️ Application Architecture
 
 CampusOS uses a separate frontend, backend, and database.
@@ -149,8 +114,6 @@ The Django models map to these MySQL tables:
 * `announcements` – Club announcements.
 
 The models define relationships between users, clubs, and events. Memberships, registrations, and attendance records include uniqueness rules for relevant record pairs.
-
-**Database note:** The current Django models use `managed = False`. Django maps these models to existing tables but does not manage their lifecycle through normal migrations. Check the existing database schema before running schema-changing commands.
 
 ---
 
@@ -227,7 +190,6 @@ Restart the frontend server after changing environment variables.
 
 ---
 
-```
 ## 🔐 Security Notes
 
 * Never commit passwords, database credentials, API secrets, or private `.env` values.
